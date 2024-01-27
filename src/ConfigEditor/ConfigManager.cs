@@ -17,11 +17,18 @@ namespace ConfigEditor
 
             };
         }
-        //生成json,及definition.json
+        /// <summary>
+        /// 生成json,及definition.json
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="path"></param>
+        /// <param name="name"></param>
+        /// <returns></returns>
         public async Task Generate<T>(string path, string name)
             where T : class, new()
         {
-            var configs = GenerateConfigModel<T>();
+            List<ConfigModel> configs = [];
+            GenerateConfigModel(typeof(T), configs);
             if (!Directory.Exists(path))
             {
                 Directory.CreateDirectory(path);
@@ -35,19 +42,6 @@ namespace ConfigEditor
             }
         }
 
-
-        /// <summary>
-        /// 根据给定的类型生成配置信息
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <returns></returns>
-        public List<ConfigModel> GenerateConfigModel<T>()
-            where T : class, new()
-        {
-            List<ConfigModel> typeModels = [];
-            GenerateConfigModel(typeof(T), typeModels);
-            return typeModels;
-        }
         private void GenerateConfigModel(Type type, List<ConfigModel> typeModels, bool mainType = true)
         {
             if (typeModels.Any(c => c.TypeName == type.Name))
