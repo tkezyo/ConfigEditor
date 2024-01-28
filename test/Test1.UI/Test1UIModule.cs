@@ -1,6 +1,5 @@
 ﻿using ConfigEditor;
 using ConfigEditor.ViewModels;
-using ConfigEditor.Views;
 using Microsoft.Extensions.DependencyInjection;
 using Serilog;
 using System.Threading.Tasks;
@@ -18,9 +17,7 @@ namespace Test1
         }
         public override Task ConfigureServices(IServiceCollection serviceDescriptors)
         {
-
             serviceDescriptors.AddSingleton<App>();
-            serviceDescriptors.AddTransient<MainWindow>();
             serviceDescriptors.AddHostedService<WpfHostedService<App, MainWindow>>();
             serviceDescriptors.AddLogging(loggingBuilder => loggingBuilder.AddSerilog(dispose: true));
 

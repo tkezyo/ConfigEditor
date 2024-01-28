@@ -10,8 +10,8 @@
 
 	<ItemGroup>
 		<PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="12.0.1" />
-		<PackageReference Include="ReactiveUI.Fody" Version="19.5.39" />
-		<PackageReference Include="Ty.UIBase" Version="0.5.0" />
+		<PackageReference Include="ReactiveUI.Fody" Version="19.5.41" />
+		<PackageReference Include="Ty.UIBase" Version="0.6.0" />
 	</ItemGroup>
 
 	<ItemGroup>

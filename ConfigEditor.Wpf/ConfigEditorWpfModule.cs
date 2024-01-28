@@ -7,9 +7,12 @@ namespace ConfigEditor
 {
     public class ConfigEditorWpfModule : ModuleBase
     {
+        public override void DependsOn()
+        {
+            AddDepend<TyWPFBaseModule>();
+        }
         public override Task ConfigureServices(IServiceCollection serviceDescriptors)
         {
-            serviceDescriptors.AddBaseViews();
             serviceDescriptors.AddTransientView<ConfigEditViewModel, ConfigEditView>();
             return Task.CompletedTask;
         }

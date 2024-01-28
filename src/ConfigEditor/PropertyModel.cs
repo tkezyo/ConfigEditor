@@ -11,7 +11,7 @@
         public string Name { get; set; } = name;
 
         public int Order { get; set; }
-        public ConfigModeltype Type { get; set; }
+        public ConfigModelType Type { get; set; }
         public string? SubType { get; set; }
         public string? DisplayName { get; set; }
         public string? GroupName { get; set; }
@@ -25,7 +25,7 @@
         public string? RegularExpression { get; set; }
     }
 
-    public enum ConfigModeltype
+    public enum ConfigModelType
     {
         String,
         Number,

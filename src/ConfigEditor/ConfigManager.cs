@@ -145,7 +145,7 @@ namespace ConfigEditor
                 //如果是String
                 if (property.PropertyType == typeof(string))
                 {
-                    configModel.Type = ConfigModeltype.String;
+                    configModel.Type = ConfigModelType.String;
                 }
                 //如果是Number
                 else if (property.PropertyType == typeof(int) ||
@@ -161,52 +161,52 @@ namespace ConfigEditor
                         property.PropertyType == typeof(sbyte) ||
                         property.PropertyType == typeof(char))
                 {
-                    configModel.Type = ConfigModeltype.Number;
+                    configModel.Type = ConfigModelType.Number;
                 }
                 //如果是Boolean
                 else if (property.PropertyType == typeof(bool))
                 {
-                    configModel.Type = ConfigModeltype.Boolean;
+                    configModel.Type = ConfigModelType.Boolean;
                 }
                 //如果是Enum
                 else if (property.PropertyType.IsEnum)
                 {
-                    configModel.Type = ConfigModeltype.String;
+                    configModel.Type = ConfigModelType.String;
                     configModel.AllowedValues.AddRange([.. Enum.GetNames(property.PropertyType)]);
                 }
                 //如果是Array 或者是List
                 else if (property.PropertyType.IsArray || property.PropertyType.IsGenericType && property.PropertyType.GetGenericTypeDefinition() == typeof(List<>))
                 {
-                    configModel.Type = ConfigModeltype.Array;
+                    configModel.Type = ConfigModelType.Array;
                     configModel.SubType = property.PropertyType.GetGenericArguments()[0].Name;
                     GenerateConfigModel(property.PropertyType.GetGenericArguments()[0], typeModels, false);
                 }
                 //如果是Object
                 else if (property.PropertyType.IsClass)
                 {
-                    configModel.Type = ConfigModeltype.Object;
+                    configModel.Type = ConfigModelType.Object;
                     configModel.SubType = property.PropertyType.Name;
                     GenerateConfigModel(property.PropertyType, typeModels, false);
                 }
                 //如果是DateTime
                 else if (property.PropertyType == typeof(DateTime))
                 {
-                    configModel.Type = ConfigModeltype.DateTime;
+                    configModel.Type = ConfigModelType.DateTime;
                 }
                 //如果是TimeSpan
                 else if (property.PropertyType == typeof(TimeSpan))
                 {
-                    configModel.Type = ConfigModeltype.TimeSpan;
+                    configModel.Type = ConfigModelType.TimeSpan;
                 }
                 //如果是DateOnly
                 else if (property.PropertyType == typeof(DateOnly))
                 {
-                    configModel.Type = ConfigModeltype.DateOnly;
+                    configModel.Type = ConfigModelType.DateOnly;
                 }
                 //如果是TimeOnly
                 else if (property.PropertyType == typeof(TimeOnly))
                 {
-                    configModel.Type = ConfigModeltype.TimeOnly;
+                    configModel.Type = ConfigModelType.TimeOnly;
                 }
                 else
                 {
