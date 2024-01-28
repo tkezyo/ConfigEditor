@@ -18,6 +18,32 @@ namespace ConfigEditor
             };
         }
         /// <summary>
+        /// 读取json
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="path"></param>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        public async Task<T> Read<T>(string path, string name)
+            where T : class, new()
+        {
+            var configPath = Path.Combine(path, name + ".json");
+            if (!File.Exists(configPath))
+            {
+                await Generate<T>(path, name);
+            }
+            var config = await File.ReadAllTextAsync(configPath);
+            var result = JsonSerializer.Deserialize<T>(config, JsonSerializerOptions);
+
+            if (result is null)
+            {
+                return new T();
+            }
+
+            return result;
+        }
+
+        /// <summary>
         /// 生成json,及definition.json
         /// </summary>
         /// <typeparam name="T"></typeparam>
@@ -41,7 +67,12 @@ namespace ConfigEditor
                 await File.WriteAllTextAsync(configPath, JsonSerializer.Serialize(new T(), typeof(T), JsonSerializerOptions));
             }
         }
-
+        /// <summary>
+        /// 生成属性
+        /// </summary>
+        /// <param name="type"></param>
+        /// <param name="typeModels"></param>
+        /// <param name="mainType"></param>
         private void GenerateConfigModel(Type type, List<ConfigModel> typeModels, bool mainType = true)
         {
             if (typeModels.Any(c => c.TypeName == type.Name))
@@ -117,65 +148,69 @@ namespace ConfigEditor
                     configModel.Type = ConfigModeltype.String;
                 }
                 //如果是Number
-                if (property.PropertyType == typeof(int) ||
-                    property.PropertyType == typeof(double) ||
-                    property.PropertyType == typeof(float) ||
-                    property.PropertyType == typeof(decimal) ||
-                    property.PropertyType == typeof(long) ||
-                    property.PropertyType == typeof(ulong) ||
-                    property.PropertyType == typeof(uint) ||
-                    property.PropertyType == typeof(short) ||
-                    property.PropertyType == typeof(ushort) ||
-                    property.PropertyType == typeof(byte) ||
-                    property.PropertyType == typeof(sbyte) ||
-                    property.PropertyType == typeof(char))
+                else if (property.PropertyType == typeof(int) ||
+                        property.PropertyType == typeof(double) ||
+                        property.PropertyType == typeof(float) ||
+                        property.PropertyType == typeof(decimal) ||
+                        property.PropertyType == typeof(long) ||
+                        property.PropertyType == typeof(ulong) ||
+                        property.PropertyType == typeof(uint) ||
+                        property.PropertyType == typeof(short) ||
+                        property.PropertyType == typeof(ushort) ||
+                        property.PropertyType == typeof(byte) ||
+                        property.PropertyType == typeof(sbyte) ||
+                        property.PropertyType == typeof(char))
                 {
                     configModel.Type = ConfigModeltype.Number;
                 }
                 //如果是Boolean
-                if (property.PropertyType == typeof(bool))
+                else if (property.PropertyType == typeof(bool))
                 {
                     configModel.Type = ConfigModeltype.Boolean;
                 }
                 //如果是Enum
-                if (property.PropertyType.IsEnum)
+                else if (property.PropertyType.IsEnum)
                 {
                     configModel.Type = ConfigModeltype.String;
                     configModel.AllowedValues.AddRange([.. Enum.GetNames(property.PropertyType)]);
                 }
                 //如果是Array 或者是List
-                if (property.PropertyType.IsArray || property.PropertyType.IsGenericType && property.PropertyType.GetGenericTypeDefinition() == typeof(List<>))
+                else if (property.PropertyType.IsArray || property.PropertyType.IsGenericType && property.PropertyType.GetGenericTypeDefinition() == typeof(List<>))
                 {
                     configModel.Type = ConfigModeltype.Array;
                     configModel.SubType = property.PropertyType.GetGenericArguments()[0].Name;
                     GenerateConfigModel(property.PropertyType.GetGenericArguments()[0], typeModels, false);
                 }
                 //如果是Object
-                if (property.PropertyType.IsClass)
+                else if (property.PropertyType.IsClass)
                 {
                     configModel.Type = ConfigModeltype.Object;
                     configModel.SubType = property.PropertyType.Name;
                     GenerateConfigModel(property.PropertyType, typeModels, false);
                 }
                 //如果是DateTime
-                if (property.PropertyType == typeof(DateTime))
+                else if (property.PropertyType == typeof(DateTime))
                 {
                     configModel.Type = ConfigModeltype.DateTime;
                 }
                 //如果是TimeSpan
-                if (property.PropertyType == typeof(TimeSpan))
+                else if (property.PropertyType == typeof(TimeSpan))
                 {
                     configModel.Type = ConfigModeltype.TimeSpan;
                 }
                 //如果是DateOnly
-                if (property.PropertyType == typeof(DateOnly))
+                else if (property.PropertyType == typeof(DateOnly))
                 {
                     configModel.Type = ConfigModeltype.DateOnly;
                 }
                 //如果是TimeOnly
-                if (property.PropertyType == typeof(TimeOnly))
+                else if (property.PropertyType == typeof(TimeOnly))
                 {
                     configModel.Type = ConfigModeltype.TimeOnly;
+                }
+                else
+                {
+                    throw new NotImplementedException("不支持此类型 " + property.Name);
                 }
 
 

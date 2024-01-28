@@ -7,7 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\src\ConfigEditor\ConfigEditor.csproj" />
+    <ProjectReference Include="..\..\src\ConfigEditor\ConfigEditor.csproj" />
   </ItemGroup>
 
 </Project>
