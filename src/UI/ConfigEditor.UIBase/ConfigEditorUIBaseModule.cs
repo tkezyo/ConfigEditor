@@ -12,7 +12,8 @@ namespace ConfigEditor
     {
         public override Task ConfigureServices(IServiceCollection serviceDescriptors)
         {
-            throw new NotImplementedException();
+            serviceDescriptors.AddTransient<ConfigManager>();
+            return Task.CompletedTask;
         }
     }
 }

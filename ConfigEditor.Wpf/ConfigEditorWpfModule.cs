@@ -9,6 +9,7 @@ namespace ConfigEditor
     {
         public override void DependsOn()
         {
+            AddDepend<ConfigEditorUIBaseModule>();
             AddDepend<TyWPFBaseModule>();
         }
         public override Task ConfigureServices(IServiceCollection serviceDescriptors)

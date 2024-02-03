@@ -18,7 +18,7 @@ namespace ConfigEditor
             };
         }
         /// <summary>
-        /// 读取json
+        /// 读取 json
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="path"></param>
@@ -42,9 +42,33 @@ namespace ConfigEditor
 
             return result;
         }
-
         /// <summary>
-        /// 生成json,及definition.json
+        /// 读取 definition.json
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="path"></param>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
+        public async Task<List<ConfigModel>> ReadDefinition<T>(string path, string name)
+        {
+            var configPath = Path.Combine(path, name + ".definition.json");
+            if (!File.Exists(configPath))
+            {
+                throw new Exception("definition.json 不存在");
+            }
+            var config = await File.ReadAllTextAsync(configPath);
+            var result = JsonSerializer.Deserialize<List<ConfigModel>>(config, JsonSerializerOptions);
+
+            if (result is null)
+            {
+                return [];
+            }
+
+            return result;
+        }
+        /// <summary>
+        /// 生成 json,及 definition.json
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="path"></param>

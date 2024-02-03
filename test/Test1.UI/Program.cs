@@ -1,5 +1,4 @@
 ﻿using Microsoft.Extensions.Hosting;
-using ReactiveUI;
 using Serilog;
 using Serilog.Events;
 using System;
@@ -24,17 +23,13 @@ namespace Test1
 
             Log.Logger = configuration.CreateLogger();
 
-            RxApp.DefaultExceptionHandler = new MyCoolObservableExceptionHandler();
+            var host = Host.CreateDefaultBuilder(args)
+                .ConfigureServices(async services =>
+                {
+                    await IModule.ConfigureServices<Test1UIModule>(services);
+                })
+                .Build();
 
-            var hostBuilder = Host.CreateDefaultBuilder(args);
-
-            hostBuilder.ConfigureServices(async services =>
-            {
-                await IModule.ConfigureServices<Test1UIModule>(services);
-            });
-
-            var host = hostBuilder.Build();
-            TyApp.ServiceProvider = host.Services;
             using (host)
             {
                 host.Start();
