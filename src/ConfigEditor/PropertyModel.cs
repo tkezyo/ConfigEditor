@@ -22,8 +22,8 @@
         public string? Prompt { get; set; }
         public int? Minimum { get; set; }
         public int? Maximum { get; set; }
-        public List<string> AllowedValues { get; set; } = [];
-        public List<string> DeniedValues { get; set; } = [];
+        public List<string>? AllowedValues { get; set; }
+        public List<string>? DeniedValues { get; set; }
         public bool Required { get; set; }
         public string? RegularExpression { get; set; }
     }

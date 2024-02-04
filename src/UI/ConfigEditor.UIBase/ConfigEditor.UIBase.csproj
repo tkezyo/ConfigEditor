@@ -15,6 +15,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <ProjectReference Include="..\..\..\test\Test1\Test1.csproj" />
 	  <ProjectReference Include="..\..\ConfigEditor\ConfigEditor.csproj" />
 	</ItemGroup>
 </Project>

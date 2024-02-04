@@ -118,10 +118,10 @@ namespace ConfigEditor
                     if (attribute is DisplayAttribute displayAttribute)
                     {
                         configModel.DisplayName = displayAttribute.Name;
-                        configModel.Description = displayAttribute.Description;
-                        configModel.GroupName = displayAttribute.GroupName;
-                        configModel.Order = displayAttribute.Order;
-                        configModel.Prompt = displayAttribute.Prompt;
+                        configModel.Description = displayAttribute.GetDescription();
+                        configModel.GroupName = displayAttribute.GetGroupName();
+                        configModel.Order = displayAttribute.GetOrder() ?? 0;
+                        configModel.Prompt = displayAttribute.GetPrompt();
                     }
                     //如果是Range
                     if (attribute is RangeAttribute rangeAttribute)
