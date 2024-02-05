@@ -2,6 +2,7 @@
 using ConfigEditor.ViewModels;
 using Microsoft.Extensions.DependencyInjection;
 using Serilog;
+using System;
 using System.Threading.Tasks;
 using Test1.UI;
 using Ty;
@@ -29,8 +30,15 @@ namespace Test1
                 options.FirstLoadPage = typeof(ConfigEditViewModel);
                 options.Title = "配置编辑器";
             });
-      
+
             return Task.CompletedTask;
+        }
+
+        public override async Task PostConfigureServices(IServiceProvider serviceProvider)
+        {
+            var configManager = serviceProvider.GetRequiredService<ConfigManager>();
+            var config = await configManager.Read<DemoConfig>("./Configs", "democonfig");
+            var model = await configManager.ReadDefinition<DemoConfig>("./Configs", "democonfig");
         }
     }
 }

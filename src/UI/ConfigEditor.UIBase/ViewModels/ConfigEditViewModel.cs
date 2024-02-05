@@ -3,7 +3,6 @@ using ReactiveUI.Fody.Helpers;
 using System.Collections.ObjectModel;
 using System.Reactive;
 using System.Reactive.Linq;
-using Test1;
 using Ty.Services;
 using Ty.ViewModels;
 
@@ -19,7 +18,6 @@ public class ConfigEditViewModel : ViewModelBase
         this._messageBoxManager = messageBoxManager;
         this._configManager = configManager;
         LoadConfigCommand = ReactiveCommand.CreateFromTask(LoadConfig);
-        CreateTestCommand = ReactiveCommand.CreateFromTask(CreateTest);
     }
 
     [Reactive]
@@ -48,13 +46,6 @@ public class ConfigEditViewModel : ViewModelBase
         }
         Path = file;
 
-    }
-
-    public ReactiveCommand<Unit, Unit> CreateTestCommand { get; }
-    public async Task CreateTest()
-    {
-        var config = await _configManager.Read<DemoConfig>("./Configs", "democonfig");
-        var model = await _configManager.ReadDefinition<DemoConfig>("./Configs", "democonfig");
     }
 }
 
