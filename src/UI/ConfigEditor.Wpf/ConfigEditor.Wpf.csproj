@@ -13,7 +13,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\src\UI\ConfigEditor.UIBase\ConfigEditor.UIBase.csproj" />
+		<ProjectReference Include="..\ConfigEditor.UIBase\ConfigEditor.UIBase.csproj" />
 	</ItemGroup>
 
 </Project>

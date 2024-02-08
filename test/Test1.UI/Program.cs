@@ -3,6 +3,7 @@ using ReactiveUI;
 using Serilog;
 using Serilog.Events;
 using System;
+using System.Diagnostics;
 using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.Threading;
@@ -23,19 +24,31 @@ namespace Test1
             .MinimumLevel.Information()
 #endif
            .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
+           //输出到文件
+           .WriteTo.File("log.txt", rollingInterval: RollingInterval.Day)
            .Enrich.FromLogContext();
 
-            Log.Logger = configuration.CreateLogger();
+            var host = await IModule.CreateHost<Test1UIModule>(args, skipVerification: true) ?? throw new Exception();
 
-            var host = await IModule.CreateHost<Test1UIModule>(args) ?? throw new Exception();
+            Start(host);
+        }
+        public static void Start(IHost host)
+        {
+            //var host = Host.CreateDefaultBuilder()
+            //    .ConfigureServices((context, services) =>
+            //    {
+            //        services.AddHostedService<Worker>();
+            //    })
+            //    .UseSerilog()
+            //    .Build();
 
+            //host.Run();
             //在STA线程上运行
             Thread thread = new(() =>
             {
                 using (host)
                 {
-                    host.Start();
-                    host.WaitForShutdown();
+                    host.Run();
                 }
             });
             thread.SetApartmentState(ApartmentState.STA);
@@ -45,4 +58,5 @@ namespace Test1
 
         }
     }
+
 }

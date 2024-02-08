@@ -1,0 +1,89 @@
+﻿<UserControl x:Class="ConfigEditor.Controls.PropertiyView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:vms="clr-namespace:ConfigEditor.ViewModels;assembly=ConfigEditor.UIBase"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:local="clr-namespace:ConfigEditor.Controls"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" xmlns:converters="clr-namespace:ConfigEditor.Converters"
+             d:DataContext="{d:DesignInstance Type=vms:ConfigViewModel}"
+             xmlns:models="clr-namespace:ConfigEditor;assembly=ConfigEditor" xmlns:hc="https://handyorg.github.io/handycontrol"
+             mc:Ignorable="d" 
+             x:Name="page"
+             d:DesignHeight="450" d:DesignWidth="800">
+    <UserControl.Resources>
+        <converters:TimeOnlyConverter x:Key="TimeOnlyConverter"></converters:TimeOnlyConverter>
+        <DataTemplate x:Key="Normal">
+            <TextBox Text="{Binding Value}" />
+        </DataTemplate>
+        <DataTemplate x:Key="Number">
+            <hc:NumericUpDown Value="{Binding Value}" Maximum="{Binding Maximum}" Minimum="{Binding Minimum}" />
+        </DataTemplate>
+        <DataTemplate x:Key="Bool">
+            <CheckBox IsChecked="{Binding Value}" />
+        </DataTemplate>
+        <DataTemplate x:Key="Enum">
+            <ComboBox ItemsSource="{Binding Options}" SelectedValue="{Binding Value}" SelectedValuePath="Value" DisplayMemberPath="Key"/>
+        </DataTemplate>
+        <DataTemplate x:Key="DateTime">
+            <hc:DateTimePicker SelectedDateTime="{Binding Value}"/>
+        </DataTemplate>
+        <DataTemplate x:Key="Date">
+            <DatePicker SelectedDate="{Binding Value}" />
+        </DataTemplate>
+        <DataTemplate x:Key="Time">
+            <hc:DateTimePicker SelectedDateTime="{Binding Value}"/>
+        </DataTemplate>
+        <DataTemplate x:Key="Array" DataType="vms:ConfigViewModel">
+            <Border BorderBrush="Gray" BorderThickness="1" Padding="6">
+                <StackPanel >
+                    <Button Content="➕" Command="{Binding AddCommand,ElementName=page}" CommandParameter="{Binding .}" VerticalAlignment="Top" HorizontalAlignment="Right" Margin="0,-20,0,0"/>
+                    <ItemsControl ItemsSource="{Binding Properties}" AlternationCount="{Binding Properties.Count}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Grid>
+                                    <local:PropertiyView DataContext="{Binding}" AddCommand="{Binding AddCommand,RelativeSource={RelativeSource AncestorType=UserControl,Mode=FindAncestor}}" />
+                                    <Button Content="✖" Command="{Binding RemoveCommand,ElementName=page}"  CommandParameter="{Binding .}" ToolTip="{Binding Path=(ItemsControl.AlternationIndex), 
+                RelativeSource={RelativeSource Mode=TemplatedParent}}" HorizontalAlignment="Right" VerticalAlignment="Top"/>
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </Border>
+        </DataTemplate>
+        <DataTemplate x:Key="NullObject" DataType="vms:ConfigViewModel">
+            <Button Content="创建"/>
+        </DataTemplate>
+        <DataTemplate x:Key="Object" DataType="vms:ConfigViewModel">
+            <Border BorderBrush="Red" BorderThickness="1" Padding="4">
+                <StackPanel>
+                    <ItemsControl ItemsSource="{Binding Properties}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <local:PropertiyView DataContext="{Binding}"  AddCommand="{Binding AddCommand,RelativeSource={RelativeSource AncestorType=UserControl,Mode=FindAncestor}}"/>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </Border>
+        </DataTemplate>
+        <converters:PropertyTypeConverter x:Key="propertyTypeConverter"
+                                           BooleanTemplate="{StaticResource Bool}"
+                                           StringTemplate="{StaticResource Normal}"
+                                           NumberTemplate="{StaticResource Number}"
+                                           HasOptionTemplate="{StaticResource Enum}"
+                                           DateTimeTemplate="{StaticResource DateTime}"
+                                           TimeOnlyTemplate="{StaticResource Time}"
+                                          DateOnlyTemplate="{StaticResource Date}"
+                                          ArrayTemplate="{StaticResource Array}"
+                                          NullObjectTemplate="{StaticResource NullObject}"
+                                            ObjectTemplate="{StaticResource Object}">
+        </converters:PropertyTypeConverter>
+
+    </UserControl.Resources>
+
+    <StackPanel>
+        <TextBlock Text="{Binding DisplayName}" ToolTip="{Binding Description}"/>
+        <ContentControl Content="{Binding .}" ContentTemplateSelector="{StaticResource propertyTypeConverter}" />
+    </StackPanel>
+</UserControl>

@@ -36,6 +36,7 @@ namespace Test1
 
         public override async Task PostConfigureServices(IServiceProvider serviceProvider)
         {
+            await Task.CompletedTask;
             var configManager = serviceProvider.GetRequiredService<ConfigManager>();
             var config = await configManager.Read<DemoConfig>("./Configs", "democonfig");
             var model = await configManager.ReadDefinition<DemoConfig>("./Configs", "democonfig");

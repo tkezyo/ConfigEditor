@@ -31,7 +31,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <ProjectReference Include="..\..\ConfigEditor.Wpf\ConfigEditor.Wpf.csproj" />
+	  <ProjectReference Include="..\..\src\UI\ConfigEditor.Wpf\ConfigEditor.Wpf.csproj" />
 	  <ProjectReference Include="..\Test1\Test1.csproj" />
 	</ItemGroup>
 

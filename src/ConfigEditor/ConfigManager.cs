@@ -164,8 +164,13 @@ namespace ConfigEditor
                     {
                         configModel.RegularExpression = regularExpressionAttribute.Pattern;
                     }
-
+                    //Option
+                    if (attribute is OptionAttribute optionAttribute)
+                    {
+                        configModel.Options.Add(new KeyValuePair<string, string>(optionAttribute.DisplayName, optionAttribute.Value));
+                    }
                 }
+
                 //如果是String
                 if (property.PropertyType == typeof(string))
                 {
@@ -195,21 +200,70 @@ namespace ConfigEditor
                 //如果是Enum
                 else if (property.PropertyType.IsEnum)
                 {
-                    configModel.Type = ConfigModelType.String;
-                    configModel.AllowedValues.AddRange([.. Enum.GetNames(property.PropertyType)]);
+                    configModel.Type = ConfigModelType.Number;
+                    // 显示内容为枚举的名称，值为枚举的值
+                    configModel.Options = property.PropertyType.GetEnumNames().Select(c => new KeyValuePair<string, string>(c, ((int)Enum.Parse(property.PropertyType, c)).ToString())).ToList();
                 }
                 //如果是Array 或者是List
                 else if (property.PropertyType.IsArray || property.PropertyType.IsGenericType && property.PropertyType.GetGenericTypeDefinition() == typeof(List<>))
                 {
                     configModel.Type = ConfigModelType.Array;
-                    configModel.SubType = property.PropertyType.GetGenericArguments()[0].Name;
+                    configModel.SubType = property.PropertyType.GetGenericArguments()[0] switch
+                    {
+                        Type t when t == typeof(string) => ConfigModelType.String,
+                        Type t when t == typeof(int) || t == typeof(double) || t == typeof(float) || t == typeof(decimal) || t == typeof(long) || t == typeof(ulong) || t == typeof(uint) || t == typeof(short) || t == typeof(ushort) || t == typeof(byte) || t == typeof(sbyte) || t == typeof(char) => ConfigModelType.Number,
+                        Type t when t == typeof(bool) => ConfigModelType.Boolean,
+                        Type t when t == typeof(DateTime) => ConfigModelType.DateTime,
+                        Type t when t == typeof(TimeSpan) => ConfigModelType.TimeSpan,
+                        Type t when t == typeof(DateOnly) => ConfigModelType.DateOnly,
+                        Type t when t == typeof(TimeOnly) => ConfigModelType.TimeOnly,
+                        Type t when t.IsEnum => ConfigModelType.Number,
+                        _ => ConfigModelType.Object
+                    };
+                    int GetDim(Type type)
+                    {
+                        if (type.IsArray)
+                        {
+                            return GetDim(type.GetElementType()) + 1;
+                        }
+                        else if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(List<>))
+                        {
+                            return GetDim(type.GetGenericArguments()[0]) + 1;
+                        }
+                        else
+                        {
+                            return 1;
+                        }
+                    }
+                    string GetSubTypeName(Type type)
+                    {
+                        if (type.IsArray)
+                        {
+                            return type.GetElementType()?.Name ?? string.Empty;
+                        }
+                        else if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(List<>))
+                        {
+                            //如果多个List嵌套
+                            if (type.GetGenericArguments()[0].IsGenericType && type.GetGenericArguments()[0].GetGenericTypeDefinition() == typeof(List<>))
+                            {
+                                return GetSubTypeName(type.GetGenericArguments()[0]);
+                            }
+                            return type.GetGenericArguments()[0].Name;
+                        }
+                        else
+                        {
+                            return type.Name;
+                        }
+                    }
+                    configModel.Dim = GetDim(property.PropertyType);
+                    configModel.SubTypeName = GetSubTypeName(property.PropertyType);
                     GenerateConfigModel(property.PropertyType.GetGenericArguments()[0], typeModels, false);
                 }
                 //如果是Object
                 else if (property.PropertyType.IsClass)
                 {
                     configModel.Type = ConfigModelType.Object;
-                    configModel.SubType = property.PropertyType.Name;
+                    configModel.SubTypeName = property.PropertyType.Name;
                     GenerateConfigModel(property.PropertyType, typeModels, false);
                 }
                 //如果是DateTime
