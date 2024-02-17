@@ -190,11 +190,26 @@ public class ConfigEditViewModel : ViewModelBase
                     }
                 }
 
-                config[property.Name] = property.Value;
+                //如果是布尔值，需要转换为布尔值
+                if (property.Type == ConfigModelType.Boolean)
+                {
+                    config[property.Name] = bool.Parse(property.Value ?? "false");
+                }
+                //如果是数字，需要转换为数字
+                else if (property.Type == ConfigModelType.Number)
+                {
+                    config[property.Name] = decimal.Parse(property.Value ?? "0");
+                }
+                else
+                {
+                    config[property.Name] = property.Value;
+                }
+
             }
         }
     }
-    void SetConfigViewModel(ConfigModel? configModel, JsonObject? config, List<ConfigModel>? definition, ObservableCollection<ConfigViewModel> configViewModel)
+
+    static void SetConfigViewModel(ConfigModel? configModel, JsonObject? config, List<ConfigModel>? definition, ObservableCollection<ConfigViewModel> configViewModel)
     {
         if (configModel != null)
         {
@@ -211,8 +226,8 @@ public class ConfigEditViewModel : ViewModelBase
                     Prompt = propertyModel.Prompt,
                     Minimum = propertyModel.Minimum,
                     Maximum = propertyModel.Maximum,
-                    AllowedValues = new ObservableCollection<string>(propertyModel.AllowedValues ?? []),
-                    DeniedValues = new ObservableCollection<string>(propertyModel.DeniedValues ?? []),
+                    AllowedValues = propertyModel.AllowedValues is not null ? new ObservableCollection<string>(propertyModel.AllowedValues) : null,
+                    DeniedValues = propertyModel.DeniedValues is not null ? new ObservableCollection<string>(propertyModel.DeniedValues) : null,
                     Options = new ObservableCollection<KeyValuePair<string, string>>(propertyModel.Options ?? []),
                     Required = propertyModel.Required,
                     RegularExpression = propertyModel.RegularExpression,
@@ -237,6 +252,11 @@ public class ConfigEditViewModel : ViewModelBase
                             if (sub is not null)
                             {
                                 var subConfigViewModel = new ConfigViewModel(propertyModel.SubTypeName ?? "");
+                                subConfigViewModel.Type = propertyModel.SubType ?? ConfigModelType.Object;
+                                if (propertyModel.SubType == ConfigModelType.Object)
+                                {
+                                    subConfigViewModel.Value = "1";
+                                }
                                 SetConfigViewModel(sub, item as JsonObject, definition, subConfigViewModel.Properties);
                                 configViewModelProperty.Properties.Add(subConfigViewModel);
                             }
@@ -261,9 +281,11 @@ public class ConfigEditViewModel : ViewModelBase
         }
         if (configViewModel.SubType.HasValue)
         {
-            ConfigViewModel configViewModel1 = new ConfigViewModel(string.Empty);
-            configViewModel1.DisplayName = configViewModel.DisplayName + "[]";
-            configViewModel1.Type = configViewModel.SubType.Value;
+            ConfigViewModel configViewModel1 = new(string.Empty)
+            {
+                DisplayName = configViewModel.DisplayName + "[]",
+                Type = configViewModel.SubType.Value
+            };
             if (configViewModel.SubType == ConfigModelType.Object)
             {
                 configViewModel1.Value = "1";

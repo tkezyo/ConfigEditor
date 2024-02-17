@@ -172,7 +172,8 @@ namespace ConfigEditor
                 }
 
                 //如果是String
-                if (property.PropertyType == typeof(string))
+                if (property.PropertyType == typeof(string) ||
+                        property.PropertyType == typeof(char))
                 {
                     configModel.Type = ConfigModelType.String;
                 }
@@ -187,8 +188,7 @@ namespace ConfigEditor
                         property.PropertyType == typeof(short) ||
                         property.PropertyType == typeof(ushort) ||
                         property.PropertyType == typeof(byte) ||
-                        property.PropertyType == typeof(sbyte) ||
-                        property.PropertyType == typeof(char))
+                        property.PropertyType == typeof(sbyte) )
                 {
                     configModel.Type = ConfigModelType.Number;
                 }
