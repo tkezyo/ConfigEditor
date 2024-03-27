@@ -1,6 +1,7 @@
 ﻿using ConfigEditor;
 using ConfigEditor.ViewModels;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Serilog;
 using System;
 using System.Threading.Tasks;
@@ -16,16 +17,17 @@ namespace Test1
         {
             AddDepend<ConfigEditorWpfModule>();
         }
-        public override Task ConfigureServices(IServiceCollection serviceDescriptors)
+     
+        public override Task ConfigureServices(IHostApplicationBuilder builder)
         {
-            serviceDescriptors.AddSingleton<App>();
-            serviceDescriptors.AddHostedService<WpfHostedService<App, MainWindow>>();
-            serviceDescriptors.AddLogging(loggingBuilder => loggingBuilder.AddSerilog(dispose: true));
+            builder.Services.AddSingleton<App>();
+            builder.Services.AddHostedService<WpfHostedService<App, MainWindow>>();
+            builder.Services.AddLogging(loggingBuilder => loggingBuilder.AddSerilog(dispose: true));
 
 
             //serviceDescriptors.AddAutoMapper(typeof(ConfigProfile).Assembly);
 
-            serviceDescriptors.Configure<PageOptions>(options =>
+            builder.Services.Configure<PageOptions>(options =>
             {
                 options.FirstLoadPage = typeof(ConfigEditViewModel);
                 options.Title = "配置编辑器";

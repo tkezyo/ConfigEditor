@@ -1,6 +1,7 @@
 ﻿using ConfigEditor.ViewModels;
 using ConfigEditor.Views;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Ty;
 
 namespace ConfigEditor
@@ -12,9 +13,10 @@ namespace ConfigEditor
             AddDepend<ConfigEditorUIBaseModule>();
             AddDepend<TyWPFBaseModule>();
         }
-        public override Task ConfigureServices(IServiceCollection serviceDescriptors)
+
+        public override Task ConfigureServices(IHostApplicationBuilder builder)
         {
-            serviceDescriptors.AddTransientView<ConfigEditViewModel, ConfigEditView>();
+            builder.Services.AddTransientView<ConfigEditViewModel, ConfigEditView>();
             return Task.CompletedTask;
         }
     }
