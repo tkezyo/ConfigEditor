@@ -229,7 +229,7 @@ public class ConfigEditViewModel : ViewModelBase
                     AllowedValues = propertyModel.AllowedValues is not null ? new ObservableCollection<string>(propertyModel.AllowedValues) : null,
                     DeniedValues = propertyModel.DeniedValues is not null ? new ObservableCollection<string>(propertyModel.DeniedValues) : null,
                     Options = new ObservableCollection<KeyValuePair<string, string>>(propertyModel.Options ?? []),
-                    Required = propertyModel.Required,
+                    Required = propertyModel.Required ?? false,
                     RegularExpression = propertyModel.RegularExpression,
                 };
                 if (config is not null)
@@ -317,9 +317,9 @@ public class ConfigViewModel(string name) : ReactiveObject
     [Reactive]
     public string? Prompt { get; set; }
     [Reactive]
-    public int? Minimum { get; set; }
+    public decimal? Minimum { get; set; }
     [Reactive]
-    public int? Maximum { get; set; }
+    public decimal? Maximum { get; set; }
     [Reactive]
     public ObservableCollection<string>? AllowedValues { get; set; }
     [Reactive]

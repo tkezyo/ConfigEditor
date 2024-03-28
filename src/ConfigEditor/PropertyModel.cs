@@ -13,25 +13,31 @@ public class PropertyModel(string name)
 {
     public string Name { get; set; } = name;
 
-    public int Order { get; set; }
+    public int? Order { get; set; }
     public ConfigModelType Type { get; set; }
     public ConfigModelType? SubType { get; set; }
     /// <summary>
     /// 如果是数组类型，那么这个值表示数组的维度
     /// </summary>
-    public int Dim { get; set; }
+    public int? Dim { get; set; }
     public string? SubTypeName { get; set; }
+    /// <summary>
+    /// 各维度的长度
+    /// </summary>
+    public int[]? DimLength { get; set; }
+
+
     public string? DisplayName { get; set; }
     public string? GroupName { get; set; }
     public string? Description { get; set; }
     public string? Prompt { get; set; }
-    public int? Minimum { get; set; }
-    public int? Maximum { get; set; }
+    public decimal? Minimum { get; set; }
+    public decimal? Maximum { get; set; }
     public List<string>? AllowedValues { get; set; }
     public List<string>? DeniedValues { get; set; }
-    public bool Required { get; set; }
+    public bool? Required { get; set; }
     public string? RegularExpression { get; set; }
-    public List<KeyValuePair<string, string>> Options { get; set; } = [];
+    public List<KeyValuePair<string, string>>? Options { get; set; }
 }
 
 public enum ConfigModelType
