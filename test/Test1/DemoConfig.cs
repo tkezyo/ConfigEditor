@@ -6,6 +6,7 @@ namespace Test1;
 public class DemoConfig
 {
     [AllowedValues("123", "123")]
+    [Required]
     [Length(1, 10)]
     public string? String { get; set; }
     [Range(1, 10)]
@@ -19,6 +20,7 @@ public class DemoConfig
     public double Double { get; set; }
     [RegularExpression("123")]
     public float Float { get; set; }
+    [Required]
     public decimal Decimal { get; set; }
     public long Long { get; set; }
     public ulong ULong { get; set; }

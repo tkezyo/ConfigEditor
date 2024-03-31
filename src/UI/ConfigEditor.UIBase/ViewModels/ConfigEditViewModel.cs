@@ -2,6 +2,8 @@
 using DynamicData.Binding;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
+using ReactiveUI.Validation.Extensions;
+using ReactiveUI.Validation.Helpers;
 using System.Collections.ObjectModel;
 using System.Formats.Asn1;
 using System.Reactive;
@@ -76,6 +78,9 @@ public class ConfigEditViewModel : ViewModelBase
                 SetConfigViewModel(item, config, definition, Configs);
             }
         }
+
+        Configs.ToObservableChangeSet().SubscribeMany(c => c.ValidationContext)
+            .Subscribe(_ => this.RaisePropertyChanged(nameof(HasErrors)));
     }
 
     public ReactiveCommand<Unit, Unit> SaveConfigCommand { get; }
@@ -307,8 +312,10 @@ public class ConfigEditViewModel : ViewModelBase
             {
                 foreach (var item in array)
                 {
-                    var subConfigViewModel = new ConfigViewModel(propertyModel.SubTypeName ?? "");
-                    subConfigViewModel.Type = propertyModel.SubType ?? ConfigModelType.Object;
+                    var subConfigViewModel = new ConfigViewModel(propertyModel.SubTypeName ?? "")
+                    {
+                        Type = propertyModel.SubType ?? ConfigModelType.Object
+                    };
                     if (subConfigViewModel.Type == ConfigModelType.Object)
                     {
                         var sub = definition?.FirstOrDefault(c => !c.MainType && c.TypeName == propertyModel.SubTypeName);
@@ -328,7 +335,6 @@ public class ConfigEditViewModel : ViewModelBase
 
 
                     configViewModelProperty.Properties.Add(subConfigViewModel);
-
                 }
             }
             else if (config[propertyModel.Name] is not null)
@@ -455,10 +461,156 @@ public class ConfigEditViewModel : ViewModelBase
     }
 }
 
-public class ConfigViewModel(string name) : ReactiveObject
+public class ConfigViewModel : ReactiveValidationObject
 {
+    public ConfigViewModel(string name)
+    {
+        this.Name = name;
+        this.ValidationRule(
+           viewModel => viewModel.Value,
+           name =>
+           {
+               if (Required && string.IsNullOrWhiteSpace(name))
+               {
+                   return false;
+               }
+               return true;
+           }, "必填");
+
+        this.ValidationRule(
+            viewModel => viewModel.Value,
+            name =>
+            {
+                if (AllowedValues is not null && !AllowedValues.Contains(name ?? string.Empty))
+                {
+                    return false;
+                }
+                return true;
+            }, "不在允许的范围内");
+
+        this.ValidationRule(
+            viewModel => viewModel.Value,
+            name =>
+            {
+                if (DeniedValues is not null && DeniedValues.Contains(name ?? string.Empty))
+                {
+                    return false;
+                }
+                return true;
+            }, "在禁止的范围内");
+
+        this.ValidationRule(
+            viewModel => viewModel.Value,
+            name =>
+            {
+                if (Type == ConfigModelType.Number)
+                {
+                    decimal v = 0;
+                    if (name is not null && !decimal.TryParse(name, out v))
+                    {
+                        return false;
+                    }
+                    if (Maximum.HasValue)
+                    {
+                        if (v > Maximum)
+                        {
+                            return false;
+                        }
+                    }
+                    if (Minimum.HasValue)
+                    {
+                        if (v < Minimum)
+                        {
+                            return false;
+                        }
+                    }
+                }
+                return true;
+            }, "不是数字");
+
+        this.ValidationRule(
+            viewModel => viewModel.Value,
+            name =>
+            {
+                if (Type == ConfigModelType.Boolean)
+                {
+                    if (name is not null && !bool.TryParse(name, out _))
+                    {
+                        return false;
+                    }
+                }
+                return true;
+            }, "不是布尔值");
+
+        this.ValidationRule(
+            viewModel => viewModel.Value,
+            name =>
+            {
+                if (Type == ConfigModelType.DateTime)
+                {
+                    if (name is not null && !DateTime.TryParse(name, out _))
+                    {
+                        return false;
+                    }
+                }
+                return true;
+            }, "不是日期时间");
+
+        this.ValidationRule(
+            viewModel => viewModel.Value,
+            name =>
+            {
+                if (Type == ConfigModelType.DateOnly)
+                {
+                    if (name is not null && !DateTime.TryParse(name, out _))
+                    {
+                        return false;
+                    }
+                }
+                return true;
+            }, "不是日期");
+
+        this.ValidationRule(
+            viewModel => viewModel.Value,
+            name =>
+            {
+                if (Type == ConfigModelType.TimeOnly)
+                {
+                    if (name is not null && !DateTime.TryParse(name, out _))
+                    {
+                        return false;
+                    }
+                }
+                return true;
+            }, "不是时间");
+
+        this.ValidationRule(
+            viewModel => viewModel.Value,
+            name =>
+            {
+                if (Type == ConfigModelType.String)
+                {
+                    if (name is not null && RegularExpression is not null && !Regex.IsMatch(name, RegularExpression))
+                    {
+                        return false;
+                    }
+                    if (name?.Length > Maximum)
+                    {
+                        return false;
+                    }
+                    if (name?.Length < Minimum)
+                    {
+                        return false;
+                    }
+                }
+                return true;
+            }, "不符合正则表达式");
+
+        this.Properties.ToObservableChangeSet().SubscribeMany(c => c.ValidationContext)
+            .Subscribe(_ => this.RaisePropertyChanged(nameof(HasErrors)));
+    }
     [Reactive]
-    public string Name { get; set; } = name;
+    public string Name { get; set; }
     [Reactive]
     public ConfigModelType Type { get; set; }
     [Reactive]

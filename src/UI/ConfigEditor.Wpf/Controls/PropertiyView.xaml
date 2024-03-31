@@ -12,29 +12,35 @@
              d:DesignHeight="450" d:DesignWidth="800">
     <UserControl.Resources>
         <converters:TimeOnlyConverter x:Key="TimeOnlyConverter"></converters:TimeOnlyConverter>
+        <converters:StringBoolConverter x:Key="StringBoolConverter"></converters:StringBoolConverter>
+        <converters:StringDoubleConverter x:Key="StringDoubleConverter"></converters:StringDoubleConverter>
         <DataTemplate x:Key="Normal">
-            <TextBox Text="{Binding Value}" />
+            <StackPanel>
+                <TextBlock Text="{Binding DisplayName}" ToolTip="{Binding Description}"/>
+                
+                <TextBox Text="{Binding Value,UpdateSourceTrigger=PropertyChanged}" Validation.ErrorTemplate="{x:Null}"></TextBox>
+            </StackPanel>
         </DataTemplate>
         <DataTemplate x:Key="Number">
-            <hc:NumericUpDown Value="{Binding Value}" Maximum="{Binding Maximum}" Minimum="{Binding Minimum}" />
+            <hc:NumericUpDown Value="{Binding Value,Converter={StaticResource StringDoubleConverter},UpdateSourceTrigger=PropertyChanged}" Maximum="{Binding Maximum}" Minimum="{Binding Minimum}" />
         </DataTemplate>
         <DataTemplate x:Key="Bool">
-            <CheckBox IsChecked="{Binding Value}" />
+            <CheckBox IsChecked="{Binding Value,Converter={StaticResource StringBoolConverter},UpdateSourceTrigger=PropertyChanged}" />
         </DataTemplate>
         <DataTemplate x:Key="Enum">
-            <ComboBox ItemsSource="{Binding Options}" SelectedValue="{Binding Value}" SelectedValuePath="Value" DisplayMemberPath="Key"/>
+            <ComboBox ItemsSource="{Binding Options}" SelectedValue="{Binding Value,UpdateSourceTrigger=PropertyChanged}" SelectedValuePath="Value" DisplayMemberPath="Key"/>
         </DataTemplate>
         <DataTemplate x:Key="DateTime">
-            <hc:DateTimePicker SelectedDateTime="{Binding Value}"/>
+            <hc:DateTimePicker SelectedDateTime="{Binding Value,UpdateSourceTrigger=PropertyChanged}"/>
         </DataTemplate>
         <DataTemplate x:Key="Date">
-            <DatePicker SelectedDate="{Binding Value}" />
+            <DatePicker SelectedDate="{Binding Value,UpdateSourceTrigger=PropertyChanged}" />
         </DataTemplate>
         <DataTemplate x:Key="Time">
-            <hc:DateTimePicker SelectedDateTime="{Binding Value}"/>
+            <hc:TimePicker SelectedTime="{Binding Value,UpdateSourceTrigger=PropertyChanged}"/>
         </DataTemplate>
         <DataTemplate x:Key="Array" DataType="vms:ConfigViewModel">
-            <Border BorderBrush="Gray" BorderThickness="1" Padding="6">
+            <Border BorderBrush="Gray" BorderThickness="1" Padding="6" ToolTip="{Binding DisplayName}">
                 <StackPanel >
                     <StackPanel Orientation="Horizontal">
                         <ItemsControl ItemsSource="{Binding DimLength}"  AlternationCount="{Binding DimLength.Count}" >
@@ -66,7 +72,7 @@
             </Border>
         </DataTemplate>
         <DataTemplate x:Key="Object" DataType="vms:ConfigViewModel">
-            <Border BorderBrush="Red" BorderThickness="1" Padding="4">
+            <Border BorderBrush="Gray" BorderThickness="1" Padding="4">
                 <StackPanel>
                     <Button Visibility="{Binding Value,Converter={StaticResource String2VisibilityReConverter}}" Content="创建" Command="{Binding SetObjectCommand,ElementName=page}" CommandParameter="{Binding .}"/>
                     <ItemsControl ItemsSource="{Binding Properties}" Visibility="{Binding Value,Converter={StaticResource String2VisibilityConverter}}">
@@ -95,8 +101,5 @@
 
     </UserControl.Resources>
 
-    <StackPanel>
-        <TextBlock Text="{Binding DisplayName}" ToolTip="{Binding Description}"/>
-        <ContentControl Content="{Binding .}" ContentTemplateSelector="{StaticResource propertyTypeConverter}" />
-    </StackPanel>
+    <ContentControl Content="{Binding .}" ContentTemplateSelector="{StaticResource propertyTypeConverter}" />
 </UserControl>
