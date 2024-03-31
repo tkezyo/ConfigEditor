@@ -1,4 +1,6 @@
-﻿using ReactiveUI;
+﻿using DynamicData;
+using DynamicData.Binding;
+using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 using System.Collections.ObjectModel;
 using System.Formats.Asn1;
@@ -24,6 +26,8 @@ public class ConfigEditViewModel : ViewModelBase
         LoadConfigCommand = ReactiveCommand.CreateFromTask(LoadConfig);
         SaveConfigCommand = ReactiveCommand.CreateFromTask(SaveConfig);
         AddPropertyCommand = ReactiveCommand.Create<ConfigViewModel>(AddProperty);
+        SetArrayCommand = ReactiveCommand.Create<ConfigViewModel>(SetArray);
+        SetObjectCommand = ReactiveCommand.Create<ConfigViewModel>(SetObject);
     }
 
     [Reactive]
@@ -65,10 +69,13 @@ public class ConfigEditViewModel : ViewModelBase
         //转换为ViewModel
         var main = definition?.FirstOrDefault(c => c.MainType);
 
-
-
-
-        SetConfigViewModel(main, config, definition, Configs);
+        if (main is not null)
+        {
+            foreach (var item in main.PropertyModels)
+            {
+                SetConfigViewModel(item, config, definition, Configs);
+            }
+        }
     }
 
     public ReactiveCommand<Unit, Unit> SaveConfigCommand { get; }
@@ -209,88 +216,239 @@ public class ConfigEditViewModel : ViewModelBase
         }
     }
 
-    static void SetConfigViewModel(ConfigModel? configModel, JsonObject? config, List<ConfigModel>? definition, ObservableCollection<ConfigViewModel> configViewModel)
+    static void SetConfigViewModel(PropertyModel propertyModel, JsonObject? config, List<ConfigModel>? definition, ObservableCollection<ConfigViewModel> configViewModel)
     {
-        if (configModel != null)
+        string GetDisplayName()
         {
-            foreach (var propertyModel in configModel.PropertyModels)
+            var name = propertyModel.DisplayName ?? propertyModel.Name;
+            //如果是数组，打印数组长度，并打印出每个维度的长度
+            if (propertyModel.Type == ConfigModelType.Array)
             {
-                var configViewModelProperty = new ConfigViewModel(propertyModel.Name)
-                {
-                    Type = propertyModel.Type,
-                    SubTypeName = propertyModel.SubTypeName,
-                    SubType = propertyModel.SubType,
-                    DisplayName = propertyModel.DisplayName ?? propertyModel.Name,
-                    GroupName = propertyModel.GroupName,
-                    Description = propertyModel.Description,
-                    Prompt = propertyModel.Prompt,
-                    Minimum = propertyModel.Minimum,
-                    Maximum = propertyModel.Maximum,
-                    AllowedValues = propertyModel.AllowedValues is not null ? new ObservableCollection<string>(propertyModel.AllowedValues) : null,
-                    DeniedValues = propertyModel.DeniedValues is not null ? new ObservableCollection<string>(propertyModel.DeniedValues) : null,
-                    Options = new ObservableCollection<KeyValuePair<string, string>>(propertyModel.Options ?? []),
-                    Required = propertyModel.Required ?? false,
-                    RegularExpression = propertyModel.RegularExpression,
-                };
-                if (config is not null)
-                {
-                    if (propertyModel.Type == ConfigModelType.Object && config[propertyModel.Name] is not null)
-                    {
-                        var sub = definition?.FirstOrDefault(c => !c.MainType && c.TypeName == propertyModel.SubTypeName);
+                name += $"[{propertyModel.Dim}]";
+            }
 
-                        if (sub is not null)
+            return name;
+        }
+        var configViewModelProperty = new ConfigViewModel(propertyModel.Name)
+        {
+            Type = propertyModel.Type,
+            SubTypeName = propertyModel.SubTypeName,
+            SubType = propertyModel.SubType,
+            DisplayName = GetDisplayName(),
+            GroupName = propertyModel.GroupName,
+            Description = propertyModel.Description,
+            Prompt = propertyModel.Prompt,
+            Minimum = propertyModel.Minimum,
+            Maximum = propertyModel.Maximum,
+            AllowedValues = propertyModel.AllowedValues is not null ? new ObservableCollection<string>(propertyModel.AllowedValues) : null,
+            DeniedValues = propertyModel.DeniedValues is not null ? new ObservableCollection<string>(propertyModel.DeniedValues) : null,
+            Options = new ObservableCollection<KeyValuePair<string, string>>(propertyModel.Options ?? []),
+            Required = propertyModel.Required ?? false,
+            RegularExpression = propertyModel.RegularExpression,
+            Dim = propertyModel.Dim,
+            Order = propertyModel.Order,
+        };
+        if (propertyModel.Type == ConfigModelType.Array)
+        {
+            //如果是数组，需要确认维度
+            if (propertyModel.Dim > 0)
+            {
+                if (propertyModel.DimLength is not null)
+                {
+                    //设置维度, propertyModel.DimLength如果不满足维度，需要补充
+                    for (int i = 0; i < propertyModel.Dim; i++)
+                    {
+                        if (propertyModel.DimLength.Length > i)
                         {
-                            SetConfigViewModel(sub, config[propertyModel.Name] as JsonObject, definition, configViewModelProperty.Properties);
+
+                            configViewModelProperty.DimLength.Add(new DimViewModel(propertyModel.DimLength[i], "Dim" + (i + 1)));
+                        }
+                        else
+                        {
+                            configViewModelProperty.DimLength.Add(new DimViewModel(0, "Dim" + (i + 1)));
                         }
                     }
-                    //如果是数组
-                    else if (propertyModel.Type == ConfigModelType.Array && config[propertyModel.Name] is JsonArray array)
+
+                    //删除多余的维度
+                    if (propertyModel.DimLength.Length > propertyModel.Dim)
                     {
-                        foreach (var item in array)
+                        for (int i = propertyModel.Dim.Value; i < propertyModel.DimLength.Length; i++)
                         {
-                            var sub = definition?.FirstOrDefault(c => !c.MainType && c.TypeName == propertyModel.SubTypeName);
-                            if (sub is not null)
+                            configViewModelProperty.DimLength.RemoveAt(i);
+                        }
+                    }
+                }
+                else
+                {
+                    for (int i = 0; i < propertyModel.Dim; i++)
+                    {
+                        configViewModelProperty.DimLength.Add(new DimViewModel(0, "Dim" + (i + 1)));
+                    }
+                }
+            }
+        }
+
+        if (config is not null)
+        {
+            if (propertyModel.Type == ConfigModelType.Object && config[propertyModel.Name] is JsonObject jsonObj)
+            {
+                var sub = definition?.FirstOrDefault(c => !c.MainType && c.TypeName == propertyModel.SubTypeName);
+
+                if (sub is not null)
+                {
+                    foreach (var item in sub.PropertyModels)
+                    {
+                        SetConfigViewModel(item, jsonObj, definition, configViewModelProperty.Properties);
+                    }
+                }
+            }
+            //如果是数组
+            else if (propertyModel.Type == ConfigModelType.Array && config[propertyModel.Name] is JsonArray array)
+            {
+                foreach (var item in array)
+                {
+                    var subConfigViewModel = new ConfigViewModel(propertyModel.SubTypeName ?? "");
+                    subConfigViewModel.Type = propertyModel.SubType ?? ConfigModelType.Object;
+                    if (subConfigViewModel.Type == ConfigModelType.Object)
+                    {
+                        var sub = definition?.FirstOrDefault(c => !c.MainType && c.TypeName == propertyModel.SubTypeName);
+                        if (sub is not null)
+                        {
+                            if (propertyModel.SubType == ConfigModelType.Object)
                             {
-                                var subConfigViewModel = new ConfigViewModel(propertyModel.SubTypeName ?? "");
-                                subConfigViewModel.Type = propertyModel.SubType ?? ConfigModelType.Object;
-                                if (propertyModel.SubType == ConfigModelType.Object)
-                                {
-                                    subConfigViewModel.Value = "1";
-                                }
-                                SetConfigViewModel(sub, item as JsonObject, definition, subConfigViewModel.Properties);
-                                configViewModelProperty.Properties.Add(subConfigViewModel);
+                                subConfigViewModel.Value = "create";
+                            }
+                            foreach (var item1 in sub.PropertyModels)
+                            {
+                                SetConfigViewModel(item1, item as JsonObject, definition, subConfigViewModel.Properties);
                             }
                         }
                     }
-                    else if (config[propertyModel.Name] is not null)
-                    {
-                        configViewModelProperty.Value = config[propertyModel.Name]?.ToString();
-                    }
+
+
+
+                    configViewModelProperty.Properties.Add(subConfigViewModel);
+
                 }
-                configViewModel.Add(configViewModelProperty);
+            }
+            else if (config[propertyModel.Name] is not null)
+            {
+                configViewModelProperty.Value = config[propertyModel.Name]?.ToString();
             }
         }
+        configViewModel.Add(configViewModelProperty);
     }
-    public ReactiveCommand<ConfigViewModel, Unit> AddPropertyCommand { get; }
-    public void AddProperty(ConfigViewModel configViewModel)
+
+    public ReactiveCommand<ConfigViewModel, Unit> SetArrayCommand { get; }
+    public void SetArray(ConfigViewModel configViewModel)
     {
-        var property = _configModels?.FirstOrDefault(c => c.TypeName == configViewModel.SubTypeName);
-        if (property is null)
+        //如果是数组，需要确认维度
+        if (configViewModel.Type != ConfigModelType.Array || !configViewModel.SubType.HasValue)
         {
             return;
         }
+
+        var arrayCount = configViewModel.DimLength.Sum(c => c.Length);
+
+        if (configViewModel.Properties.Count > arrayCount)
+        {
+            //删除多余的属性
+            for (int i = arrayCount; i < configViewModel.Properties.Count; i++)
+            {
+                configViewModel.Properties.RemoveAt(i);
+            }
+        }
+        else if (configViewModel.Properties.Count < arrayCount)
+        {
+            //添加缺少的属性
+            for (int i = configViewModel.Properties.Count; i < arrayCount; i++)
+            {
+                ConfigViewModel configViewModel1 = new(configViewModel.Name)
+                {
+                    Type = configViewModel.SubType.Value,
+                    AllowedValues = configViewModel.AllowedValues,
+                    DeniedValues = configViewModel.DeniedValues,
+                    Options = configViewModel.Options,
+                    Required = configViewModel.Required,
+                    RegularExpression = configViewModel.RegularExpression,
+                    Order = configViewModel.Order,
+                    GroupName = configViewModel.GroupName,
+                    Description = configViewModel.Description,
+                    Prompt = configViewModel.Prompt,
+                    Minimum = configViewModel.Minimum,
+                    Maximum = configViewModel.Maximum,
+                    DisplayName = configViewModel.DisplayName,
+                };
+                if (configViewModel.SubType == ConfigModelType.Object)
+                {
+                    var property = _configModels?.FirstOrDefault(c => c.TypeName == configViewModel.SubTypeName);
+                    if (property is null)
+                    {
+                        return;
+                    }
+                    configViewModel1.Value = "create";
+                    foreach (var item in property.PropertyModels)
+                    {
+                        SetConfigViewModel(item, [], _configModels, configViewModel1.Properties);
+                    }
+                }
+                configViewModel.Properties.Add(configViewModel1);
+            }
+        }
+        int count = configViewModel.DimLength.Select(c => c.Length).Aggregate((a, b) => a * b);
+        for (int i = 0; i < count; i++)
+        {
+            int index = i;  // 一维索引
+
+            int[] indices = new int[configViewModel.DimLength.Count];
+
+            for (int j = configViewModel.DimLength.Count - 1; j >= 0; j--)
+            {
+                indices[j] = (index % configViewModel.DimLength[j].Length) + 1;
+                index /= configViewModel.DimLength[j].Length;
+            }
+            configViewModel.Properties[i].DisplayName = configViewModel.Properties[i].Name + "(" + string.Join(",", indices) + ")";
+        }
+    }
+
+    public ReactiveCommand<ConfigViewModel, Unit> SetObjectCommand { get; }
+    public void SetObject(ConfigViewModel configViewModel)
+    {
+        var sub = _configModels?.FirstOrDefault(c => !c.MainType && c.TypeName == configViewModel.SubTypeName);
+
+        configViewModel.Value = "create";
+
+        if (sub is not null)
+        {
+            foreach (var item in sub.PropertyModels)
+            {
+                SetConfigViewModel(item, [], _configModels, configViewModel.Properties);
+            }
+        }
+    }
+
+    public ReactiveCommand<ConfigViewModel, Unit> AddPropertyCommand { get; }
+    public void AddProperty(ConfigViewModel configViewModel)
+    {
         if (configViewModel.SubType.HasValue)
         {
             ConfigViewModel configViewModel1 = new(string.Empty)
             {
-                DisplayName = configViewModel.DisplayName + "[]",
                 Type = configViewModel.SubType.Value
             };
             if (configViewModel.SubType == ConfigModelType.Object)
             {
-                configViewModel1.Value = "1";
+                var property = _configModels?.FirstOrDefault(c => c.TypeName == configViewModel.SubTypeName);
+                if (property is null)
+                {
+                    return;
+                }
+                configViewModel1.Value = "create";
+                foreach (var item in property.PropertyModels)
+                {
+                    SetConfigViewModel(item, [], _configModels, configViewModel1.Properties);
+                }
             }
-            SetConfigViewModel(property, [], _configModels, configViewModel1.Properties);
             configViewModel.Properties.Add(configViewModel1);
         }
 
@@ -299,11 +457,12 @@ public class ConfigEditViewModel : ViewModelBase
 
 public class ConfigViewModel(string name) : ReactiveObject
 {
+    [Reactive]
     public string Name { get; set; } = name;
     [Reactive]
     public ConfigModelType Type { get; set; }
     [Reactive]
-    public int Order { get; set; }
+    public int? Order { get; set; }
     [Reactive]
     public ConfigModelType? SubType { get; set; }
     [Reactive]
@@ -334,5 +493,40 @@ public class ConfigViewModel(string name) : ReactiveObject
     public string? Value { get; set; }
 
     [Reactive]
+    public int? Dim { get; set; }
+    [Reactive]
+    public ObservableCollection<DimViewModel> DimLength { get; set; } = [];
+
+    [Reactive]
     public ObservableCollection<ConfigViewModel> Properties { get; set; } = [];
+}
+
+public class DimViewModel : ReactiveObject
+{
+    public DimViewModel(int length, string displayName)
+    {
+        if (length < 1)
+        {
+            length = 1;
+            ReadOnly = false;
+        }
+        else
+        {
+            ReadOnly = true;
+        }
+        Length = length;
+        DisplayName = displayName;
+        if (!ReadOnly)
+        {
+            DisplayName += "*";
+        }
+    }
+    [Reactive]
+    public int Length { get; set; }
+
+    [Reactive]
+    public bool ReadOnly { get; set; }
+
+    [Reactive]
+    public string DisplayName { get; set; }
 }

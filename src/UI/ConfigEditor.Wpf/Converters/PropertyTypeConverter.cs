@@ -16,7 +16,6 @@ namespace ConfigEditor.Converters
         public DataTemplate? TimeOnlyTemplate { get; set; }
         public DataTemplate? HasOptionTemplate { get; set; }
         public DataTemplate? ObjectTemplate { get; set; }
-        public DataTemplate? NullObjectTemplate { get; set; }
         public DataTemplate? ArrayTemplate { get; set; }
 
         public override DataTemplate? SelectTemplate(object item, DependencyObject container)
@@ -66,14 +65,7 @@ namespace ConfigEditor.Converters
             }
             if (obj.Type == ConfigModelType.Object)
             {
-                if (!string.IsNullOrEmpty(obj.Value))
-                {
-                    return ObjectTemplate;
-                }
-                else
-                {
-                    return NullObjectTemplate;
-                }
+                return ObjectTemplate;
             }
             if (obj.Type == ConfigModelType.Array)
             {

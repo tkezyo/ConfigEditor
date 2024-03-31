@@ -32,10 +32,11 @@ public class DemoConfig
     public DateOnly DateOnly { get; set; }
     public TimeOnly TimeOnly { get; set; }
     public DemoEnum Enum { get; set; }
+    public Demo2? Demo2 { get; set; }
     public List<Demo2> Demo2s { get; set; } = [];
     public List<int> Ints { get; set; } = [];
     public List<List<int>> IntInts { get; set; } = [];
-    [DimLength(1,2,3)]
+    [DimLength(1, 0, 3)]
     public double[][][] Doubledoubledoubles { get; set; } = [];
 
 }
