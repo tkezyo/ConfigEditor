@@ -354,7 +354,7 @@ public class ConfigEditViewModel : ViewModelBase
             return;
         }
 
-        var arrayCount = configViewModel.DimLength.Sum(c => c.Length);
+        int arrayCount = configViewModel.DimLength.Select(c => c.Length).Aggregate((a, b) => a * b);
 
         if (configViewModel.Properties.Count > arrayCount)
         {
@@ -401,8 +401,8 @@ public class ConfigEditViewModel : ViewModelBase
                 configViewModel.Properties.Add(configViewModel1);
             }
         }
-        int count = configViewModel.DimLength.Select(c => c.Length).Aggregate((a, b) => a * b);
-        for (int i = 0; i < count; i++)
+
+        for (int i = 0; i < arrayCount; i++)
         {
             int index = i;  // 一维索引
 
