@@ -9,35 +9,103 @@
              xmlns:models="clr-namespace:ConfigEditor;assembly=ConfigEditor" xmlns:hc="https://handyorg.github.io/handycontrol"
              mc:Ignorable="d" 
              x:Name="page"
+             Validation.ErrorTemplate="{x:Null}"
              d:DesignHeight="450" d:DesignWidth="800">
     <UserControl.Resources>
         <converters:TimeOnlyConverter x:Key="TimeOnlyConverter"></converters:TimeOnlyConverter>
         <converters:StringBoolConverter x:Key="StringBoolConverter"></converters:StringBoolConverter>
         <converters:StringDoubleConverter x:Key="StringDoubleConverter"></converters:StringDoubleConverter>
+        <converters:ObjStringConverter x:Key="ObjStringConverter"></converters:ObjStringConverter>
         <DataTemplate x:Key="Normal">
             <StackPanel>
-                <TextBlock Text="{Binding DisplayName}" ToolTip="{Binding Description}"/>
-                
-                <TextBox Text="{Binding Value,UpdateSourceTrigger=PropertyChanged}" Validation.ErrorTemplate="{x:Null}"></TextBox>
+                <TextBlock Text="{Binding DisplayName}" ToolTip="{Binding Description}" VerticalAlignment="Center"/>
+                <TextBox Text="{Binding Value,UpdateSourceTrigger=PropertyChanged}" x:Name="tbString" Validation.ErrorTemplate="{x:Null}"></TextBox>
+                <ItemsControl ItemsSource="{Binding (Validation.Errors),ElementName=tbString}" Visibility="{Binding (Validation.HasError), ElementName=tbString, Converter={StaticResource Boolean2VisibilityConverter}}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding ErrorContent,Converter={StaticResource ObjStringConverter}}" Foreground="Red"/>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
             </StackPanel>
         </DataTemplate>
         <DataTemplate x:Key="Number">
-            <hc:NumericUpDown Value="{Binding Value,Converter={StaticResource StringDoubleConverter},UpdateSourceTrigger=PropertyChanged}" Maximum="{Binding Maximum}" Minimum="{Binding Minimum}" />
+            <StackPanel>
+                <TextBlock Text="{Binding DisplayName}" ToolTip="{Binding Description}" VerticalAlignment="Center"/>
+                <hc:NumericUpDown Value="{Binding Value,Converter={StaticResource StringDoubleConverter},UpdateSourceTrigger=PropertyChanged}" Maximum="{Binding Maximum}" Minimum="{Binding Minimum}" Validation.ErrorTemplate="{x:Null}" x:Name="tbNumber" />
+                <ItemsControl ItemsSource="{Binding (Validation.Errors),ElementName=tbNumber}" Visibility="{Binding (Validation.HasError), ElementName=tbNumber, Converter={StaticResource Boolean2VisibilityConverter}}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding ErrorContent,Converter={StaticResource ObjStringConverter}}" Foreground="Red"/>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </StackPanel>
+            
         </DataTemplate>
         <DataTemplate x:Key="Bool">
-            <CheckBox IsChecked="{Binding Value,Converter={StaticResource StringBoolConverter},UpdateSourceTrigger=PropertyChanged}" />
+            <StackPanel>
+                <CheckBox IsChecked="{Binding Value,Converter={StaticResource StringBoolConverter},UpdateSourceTrigger=PropertyChanged}"  Content="{Binding DisplayName}" x:Name="cbBool"/>
+                <ItemsControl ItemsSource="{Binding (Validation.Errors),ElementName=cbBool}" Visibility="{Binding (Validation.HasError), ElementName=cbBool, Converter={StaticResource Boolean2VisibilityConverter}}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding ErrorContent,Converter={StaticResource ObjStringConverter}}" Foreground="Red"/>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </StackPanel>
         </DataTemplate>
         <DataTemplate x:Key="Enum">
-            <ComboBox ItemsSource="{Binding Options}" SelectedValue="{Binding Value,UpdateSourceTrigger=PropertyChanged}" SelectedValuePath="Value" DisplayMemberPath="Key"/>
+            <StackPanel>
+                <TextBlock Text="{Binding DisplayName}" ToolTip="{Binding Description}" VerticalAlignment="Center"/>
+                <ComboBox ItemsSource="{Binding Options}" SelectedValue="{Binding Value,UpdateSourceTrigger=PropertyChanged}" SelectedValuePath="Value" DisplayMemberPath="Key" x:Name="cb" />
+                <ItemsControl ItemsSource="{Binding (Validation.Errors),ElementName=cb}" Visibility="{Binding (Validation.HasError), ElementName=cb, Converter={StaticResource Boolean2VisibilityConverter}}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding ErrorContent,Converter={StaticResource ObjStringConverter}}" Foreground="Red"/>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </StackPanel>
         </DataTemplate>
         <DataTemplate x:Key="DateTime">
-            <hc:DateTimePicker SelectedDateTime="{Binding Value,UpdateSourceTrigger=PropertyChanged}"/>
+            <StackPanel>
+                <TextBlock Text="{Binding DisplayName}" ToolTip="{Binding Description}" VerticalAlignment="Center"/>
+                <hc:DateTimePicker SelectedDateTime="{Binding Value,UpdateSourceTrigger=PropertyChanged}" x:Name="dtp"/>
+                <ItemsControl ItemsSource="{Binding (Validation.Errors),ElementName=dtp}" Visibility="{Binding (Validation.HasError), ElementName=dtp, Converter={StaticResource Boolean2VisibilityConverter}}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding ErrorContent,Converter={StaticResource ObjStringConverter}}" Foreground="Red"/>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </StackPanel>
         </DataTemplate>
         <DataTemplate x:Key="Date">
-            <DatePicker SelectedDate="{Binding Value,UpdateSourceTrigger=PropertyChanged}" />
+            <StackPanel>
+                <TextBlock Text="{Binding DisplayName}" ToolTip="{Binding Description}" VerticalAlignment="Center"/>
+                <DatePicker SelectedDate="{Binding Value,UpdateSourceTrigger=PropertyChanged}" x:Name="dp"/>
+                <ItemsControl ItemsSource="{Binding (Validation.Errors),ElementName=dp}" Visibility="{Binding (Validation.HasError), ElementName=dp, Converter={StaticResource Boolean2VisibilityConverter}}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding ErrorContent,Converter={StaticResource ObjStringConverter}}" Foreground="Red"/>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </StackPanel>
         </DataTemplate>
         <DataTemplate x:Key="Time">
-            <hc:TimePicker SelectedTime="{Binding Value,UpdateSourceTrigger=PropertyChanged}"/>
+            <StackPanel>
+                <TextBlock Text="{Binding DisplayName}" ToolTip="{Binding Description}" VerticalAlignment="Center"/>
+                <hc:TimePicker SelectedTime="{Binding Value,UpdateSourceTrigger=PropertyChanged}" x:Name="tp"/>
+                <ItemsControl ItemsSource="{Binding (Validation.Errors),ElementName=tp}" Visibility="{Binding (Validation.HasError), ElementName=tp, Converter={StaticResource Boolean2VisibilityConverter}}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding ErrorContent,Converter={StaticResource ObjStringConverter}}" Foreground="Red"/>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </StackPanel>
         </DataTemplate>
         <DataTemplate x:Key="Array" DataType="vms:ConfigViewModel">
             <Border BorderBrush="Gray" BorderThickness="1" Padding="6" ToolTip="{Binding DisplayName}">
@@ -101,5 +169,5 @@
 
     </UserControl.Resources>
 
-    <ContentControl Content="{Binding .}" ContentTemplateSelector="{StaticResource propertyTypeConverter}" />
+    <ContentControl Content="{Binding .}" ContentTemplateSelector="{StaticResource propertyTypeConverter}" Validation.ErrorTemplate="{x:Null}"/>
 </UserControl>

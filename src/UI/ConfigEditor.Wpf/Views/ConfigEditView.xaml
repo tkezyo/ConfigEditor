@@ -23,7 +23,7 @@
             <TextBlock Text="{Binding Path}" VerticalAlignment="Center"/>
         </StackPanel>
 
-        <ScrollViewer Grid.Row="1" Padding="10,0">
+        <ScrollViewer Grid.Row="1" Padding="10">
             <ItemsControl ItemsSource="{Binding Configs}">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
