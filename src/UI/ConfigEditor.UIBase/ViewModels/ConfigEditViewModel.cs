@@ -26,7 +26,7 @@ public class ConfigEditViewModel : ViewModelBase
         this._messageBoxManager = messageBoxManager;
         this._configManager = configManager;
         LoadConfigCommand = ReactiveCommand.CreateFromTask(LoadConfig);
-        SaveConfigCommand = ReactiveCommand.CreateFromTask(SaveConfig);
+        SaveConfigCommand = ReactiveCommand.CreateFromTask(SaveConfig, this.ValidationContext.Valid);
         AddPropertyCommand = ReactiveCommand.Create<ConfigViewModel>(AddProperty);
         SetArrayCommand = ReactiveCommand.Create<ConfigViewModel>(SetArray);
         SetObjectCommand = ReactiveCommand.Create<ConfigViewModel>(SetObject);
@@ -79,8 +79,14 @@ public class ConfigEditViewModel : ViewModelBase
             }
         }
 
-        Configs.ToObservableChangeSet().SubscribeMany(c => c.ValidationContext)
-            .Subscribe(_ => this.RaisePropertyChanged(nameof(HasErrors)));
+        //订阅所有属性的ValidationContext，当有属性的ValidationContext发生变化时，重新计算HasErrors
+        this.Configs.ToObservableChangeSet().ActOnEveryObject(c =>
+        {
+            this.ValidationContext.Add(c.ValidationContext);
+        }, c =>
+        {
+            this.ValidationContext.Remove(c.ValidationContext);
+        });
     }
 
     public ReactiveCommand<Unit, Unit> SaveConfigCommand { get; }
@@ -92,132 +98,166 @@ public class ConfigEditViewModel : ViewModelBase
         }
         var config = new JsonObject();
 
-        SetConfig(config, Configs);
+        foreach (var item in Configs)
+        {
+            config[item.Name] = SetJsonNode(item);
+        }
+
         await File.WriteAllTextAsync(Path, config.ToString());
+        await _messageBoxManager.Alert.Handle(new AlertInfo("保存成功"));
     }
 
-    static void SetConfig(JsonObject config, ObservableCollection<ConfigViewModel> configViewModel)
+
+    static JsonNode SetJsonNode(ConfigViewModel config)
     {
-        foreach (var property in configViewModel)
+        if (config.Required)
         {
-            if (property.Type == ConfigModelType.Object)
+            if (config.Value is null)
             {
-                var subConfig = new JsonObject();
-                SetConfig(subConfig, property.Properties);
-                config[property.Name] = subConfig;
+                throw new Exception($"{config.Name}是必填项");
             }
-            else if (property.Type == ConfigModelType.Array)
-            {
-                var array = new JsonArray();
-                foreach (var sub in property.Properties)
-                {
-                    var subConfig = new JsonObject();
-                    SetConfig(subConfig, sub.Properties);
-                    array.Add(subConfig);
-                }
-                config[property.Name] = array;
-            }
-            else
-            {
-                if (property.Required)
-                {
-                    if (property.Value is null)
-                    {
-                        throw new Exception($"{property.Name}是必填项");
-                    }
-                }
-                if (property.AllowedValues is not null && !property.AllowedValues.Contains(property.Value ?? string.Empty))
-                {
-                    throw new Exception($"{property.Name}的值不在允许的范围内");
-                }
-                if (property.DeniedValues is not null && property.DeniedValues.Contains(property.Value ?? string.Empty))
-                {
-                    throw new Exception($"{property.Name}的值在禁止的范围内");
-                }
+        }
+        if (config.AllowedValues is not null && !config.AllowedValues.Contains(config.Value ?? string.Empty))
+        {
+            throw new Exception($"{config.Name}的值不在允许的范围内");
+        }
+        if (config.DeniedValues is not null && config.DeniedValues.Contains(config.Value ?? string.Empty))
+        {
+            throw new Exception($"{config.Name}的值在禁止的范围内");
+        }
 
-                //验证数据是否合法
-                if (property.Type == ConfigModelType.Number)
+        //验证数据是否合法
+        if (config.Type == ConfigModelType.Number)
+        {
+            decimal v = 0;
+            if (config.Value is not null && !decimal.TryParse(config.Value, out v))
+            {
+                throw new Exception($"{config.Name}的值不是数字");
+            }
+            if (config.Maximum.HasValue)
+            {
+                if (v > config.Maximum)
                 {
-                    decimal v = 0;
-                    if (property.Value is not null && !decimal.TryParse(property.Value, out v))
+                    throw new Exception($"{config.Name}的值大于最大值");
+                }
+            }
+            if (config.Minimum.HasValue)
+            {
+                if (v < config.Minimum)
+                {
+                    throw new Exception($"{config.Name}的值小于最小值");
+                }
+            }
+        }
+        else if (config.Type == ConfigModelType.Boolean)
+        {
+            if (config.Value is not null && !bool.TryParse(config.Value, out _))
+            {
+                throw new Exception($"{config.Name}的值不是布尔值");
+            }
+        }
+        else if (config.Type == ConfigModelType.DateTime)
+        {
+            if (config.Value is not null && !DateTime.TryParse(config.Value, out _))
+            {
+                throw new Exception($"{config.Name}的值不是日期时间");
+            }
+        }
+        else if (config.Type == ConfigModelType.DateOnly)
+        {
+            if (config.Value is not null && !DateOnly.TryParse(config.Value, out _))
+            {
+                throw new Exception($"{config.Name}的值不是日期");
+            }
+        }
+        else if (config.Type == ConfigModelType.TimeOnly)
+        {
+            if (config.Value is not null && !TimeOnly.TryParse(config.Value, out _))
+            {
+                throw new Exception($"{config.Name}的值不是时间");
+            }
+        }
+        else if (config.Type == ConfigModelType.String)
+        {
+            if (config.Value is not null && config.RegularExpression is not null && !Regex.IsMatch(config.Value, config.RegularExpression))
+            {
+                throw new Exception($"{config.Name}的值不符合正则表达式");
+            }
+            if (config.Value?.Length > config.Maximum)
+            {
+                throw new Exception($"{config.Name}的值超长");
+            }
+            if (config.Value?.Length < config.Minimum)
+            {
+                throw new Exception($"{config.Name}的值过短");
+            }
+        }
+
+        if (config.Type == ConfigModelType.Object)
+        {
+            JsonObject jsonObj = new JsonObject();
+            foreach (var item in config.Properties)
+            {
+                jsonObj[item.Name] = SetJsonNode(item);
+            }
+            return jsonObj;
+        }
+        else if (config.Type == ConfigModelType.Array)
+        {
+            var array = new JsonArray();
+            //如果是数组，需要确认维度
+            if (config.Dim > 0)
+            {
+                for (var i = 0; i < config.Properties.Count; i++)
+                {
+                    var property = config.Properties[i];
+                    //计算当前元素的维度索引
+                    int[] index = new int[config.DimLength.Count];
+                    int temp = i;
+                    for (int j = config.DimLength.Count - 1; j >= 0; j--)
                     {
-                        throw new Exception($"{property.Name}的值不是数字");
+                        index[j] = temp % config.DimLength[j].Length;
+                        temp /= config.DimLength[j].Length;
                     }
-                    if (property.Maximum.HasValue)
+
+                    //如果index的值为0,0，那么从array中取出对应的数组，如果没有则创建一个新的数组
+                    JsonArray GetArray(JsonArray array, int[] index)
                     {
-                        if (v > property.Maximum)
+                        JsonArray? array1 = array;
+                        for (int i = 0; i < index.Length; i++)
                         {
-                            throw new Exception($"{property.Name}的值大于最大值");
+                            if (array1.Count <= index[i] && i != (index.Length - 1))
+                            {
+                                array1.Add(new JsonArray());
+                            }
+                            if (i != (index.Length - 1))
+                            {
+                                array1 = array1[index[i]] as JsonArray;
+                            }
                         }
+                        return array1;
                     }
-                    if (property.Minimum.HasValue)
-                    {
-                        if (v < property.Minimum)
-                        {
-                            throw new Exception($"{property.Name}的值小于最小值");
-                        }
-                    }
-                }
-                else if (property.Type == ConfigModelType.Boolean)
-                {
-                    if (property.Value is not null && !bool.TryParse(property.Value, out _))
-                    {
-                        throw new Exception($"{property.Name}的值不是布尔值");
-                    }
-                }
-                else if (property.Type == ConfigModelType.DateTime)
-                {
-                    if (property.Value is not null && !DateTime.TryParse(property.Value, out _))
-                    {
-                        throw new Exception($"{property.Name}的值不是日期时间");
-                    }
-                }
-                else if (property.Type == ConfigModelType.DateOnly)
-                {
-                    if (property.Value is not null && !DateOnly.TryParse(property.Value, out _))
-                    {
-                        throw new Exception($"{property.Name}的值不是日期");
-                    }
-                }
-                else if (property.Type == ConfigModelType.TimeOnly)
-                {
-                    if (property.Value is not null && !TimeOnly.TryParse(property.Value, out _))
-                    {
-                        throw new Exception($"{property.Name}的值不是时间");
-                    }
-                }
-                else if (property.Type == ConfigModelType.String)
-                {
-                    if (property.Value is not null && property.RegularExpression is not null && !Regex.IsMatch(property.Value, property.RegularExpression))
-                    {
-                        throw new Exception($"{property.Name}的值不符合正则表达式");
-                    }
-                    if (property.Value?.Length > property.Maximum)
-                    {
-                        throw new Exception($"{property.Name}的值超长");
-                    }
-                    if (property.Value?.Length < property.Minimum)
-                    {
-                        throw new Exception($"{property.Name}的值过短");
-                    }
-                }
 
-                //如果是布尔值，需要转换为布尔值
-                if (property.Type == ConfigModelType.Boolean)
-                {
-                    config[property.Name] = bool.Parse(property.Value ?? "false");
-                }
-                //如果是数字，需要转换为数字
-                else if (property.Type == ConfigModelType.Number)
-                {
-                    config[property.Name] = decimal.Parse(property.Value ?? "0");
-                }
-                else
-                {
-                    config[property.Name] = property.Value;
-                }
+                    var array1 = GetArray(array, index);
 
+                    array1.Add(SetJsonNode(property));
+                }
             }
+            return array;
+        }
+        //如果是布尔值，需要转换为布尔值
+        else if (config.Type == ConfigModelType.Boolean)
+        {
+            return (JsonNode)bool.Parse(config.Value ?? "false");
+        }
+        //如果是数字，需要转换为数字
+        else if (config.Type == ConfigModelType.Number)
+        {
+            return (JsonNode)decimal.Parse(config.Value ?? "0");
+        }
+        else
+        {
+            return (JsonNode)(config.Value ?? string.Empty);
         }
     }
 
@@ -606,8 +646,13 @@ public class ConfigViewModel : ReactiveValidationObject
                 return true;
             }, "不符合正则表达式");
 
-        this.Properties.ToObservableChangeSet().SubscribeMany(c => c.ValidationContext)
-            .Subscribe(_ => this.RaisePropertyChanged(nameof(HasErrors)));
+        this.Properties.ToObservableChangeSet().ActOnEveryObject(c =>
+        {
+            this.ValidationContext.Add(c.ValidationContext);
+        }, c =>
+        {
+            this.ValidationContext.Remove(c.ValidationContext);
+        });
     }
     [Reactive]
     public string Name { get; set; }
