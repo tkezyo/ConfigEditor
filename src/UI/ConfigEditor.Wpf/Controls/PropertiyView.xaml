@@ -71,7 +71,7 @@
         <DataTemplate x:Key="DateTime">
             <StackPanel>
                 <TextBlock Text="{Binding DisplayName}" ToolTip="{Binding Description}" VerticalAlignment="Center"/>
-                <hc:DateTimePicker SelectedDateTime="{Binding Value,UpdateSourceTrigger=PropertyChanged}" x:Name="dtp"/>
+                <hc:DateTimePicker SelectedDateTime="{Binding Value,UpdateSourceTrigger=PropertyChanged}" x:Name="dtp" DateTimeFormat="yyyy-MM-dd HH:mm:ss"/>
                 <ItemsControl ItemsSource="{Binding (Validation.Errors),ElementName=dtp}" Visibility="{Binding (Validation.HasError), ElementName=dtp, Converter={StaticResource Boolean2VisibilityConverter}}">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
@@ -97,7 +97,7 @@
         <DataTemplate x:Key="Time">
             <StackPanel>
                 <TextBlock Text="{Binding DisplayName}" ToolTip="{Binding Description}" VerticalAlignment="Center"/>
-                <hc:TimePicker SelectedTime="{Binding Value,UpdateSourceTrigger=PropertyChanged}" x:Name="tp"/>
+                <hc:TimePicker SelectedTime="{Binding Value,UpdateSourceTrigger=PropertyChanged}" x:Name="tp" TimeFormat="HH:mm:ss"/>
                 <ItemsControl ItemsSource="{Binding (Validation.Errors),ElementName=tp}" Visibility="{Binding (Validation.HasError), ElementName=tp, Converter={StaticResource Boolean2VisibilityConverter}}">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
@@ -148,19 +148,19 @@
                 <TextBlock Text="{Binding DisplayName}" ToolTip="{Binding Description}" VerticalAlignment="Center"/>
 
                 <Border BorderBrush="Gray" BorderThickness="1" Padding="4">
-                <StackPanel>
-                    <Button Visibility="{Binding Value,Converter={StaticResource String2VisibilityReConverter}}" Content="创建" Command="{Binding SetObjectCommand,ElementName=page}" CommandParameter="{Binding .}"/>
-                    <ItemsControl ItemsSource="{Binding Properties}" Visibility="{Binding Value,Converter={StaticResource String2VisibilityConverter}}">
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate>
-                                <local:PropertiyView DataContext="{Binding}" 
+                    <StackPanel>
+                        <Button Visibility="{Binding Value,Converter={StaticResource String2VisibilityReConverter}}" Content="创建" Command="{Binding SetObjectCommand,ElementName=page}" CommandParameter="{Binding .}"/>
+                        <ItemsControl ItemsSource="{Binding Properties}" Visibility="{Binding Value,Converter={StaticResource String2VisibilityConverter}}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <local:PropertiyView DataContext="{Binding}" 
                                                      SetArrayCommand="{Binding SetArrayCommand,RelativeSource={RelativeSource AncestorType=UserControl, Mode=FindAncestor}}" 
                                                      SetObjectCommand="{Binding SetObjectCommand,RelativeSource={RelativeSource AncestorType=UserControl, Mode=FindAncestor}}"/>
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
-                </StackPanel>
-            </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </Border>
             </StackPanel>
         </DataTemplate>
         <converters:PropertyTypeConverter x:Key="propertyTypeConverter"

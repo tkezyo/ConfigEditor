@@ -14,7 +14,6 @@ namespace ConfigEditor
                 //忽略值为空的属性
                 DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull,
 
-
                 //格式化
                 WriteIndented = true,
 

@@ -6,6 +6,7 @@ using ReactiveUI.Validation.Extensions;
 using ReactiveUI.Validation.Helpers;
 using System.Collections.ObjectModel;
 using System.Formats.Asn1;
+using System.Globalization;
 using System.Reactive;
 using System.Reactive.Linq;
 using System.Text.Json;
@@ -163,16 +164,16 @@ public class ConfigEditViewModel : ViewModelBase
                 throw new Exception($"{config.Name}的值不是日期时间");
             }
         }
-        else if (config.Type == ConfigModelType.DateOnly)
+        else if (config.Type == ConfigModelType.DateOnly )
         {
-            if (config.Value is not null && !DateOnly.TryParse(config.Value, out _))
+            if (config.Value is not null && !DateOnly.TryParse(config.Value.Split(' ')[0], out _))
             {
                 throw new Exception($"{config.Name}的值不是日期");
             }
         }
         else if (config.Type == ConfigModelType.TimeOnly)
         {
-            if (config.Value is not null && !TimeOnly.TryParse(config.Value, out _))
+            if (config.Value is not null && !TimeOnly.TryParse(config.Value.Split(' ')[1], out _))
             {
                 throw new Exception($"{config.Name}的值不是时间");
             }
@@ -254,6 +255,21 @@ public class ConfigEditViewModel : ViewModelBase
         else if (config.Type == ConfigModelType.Number)
         {
             return (JsonNode)decimal.Parse(config.Value ?? "0");
+        }
+        else if (config.Type == ConfigModelType.DateTime)
+        {
+            //config.value的格式为 4/2/2024 10:19:02 PM 需要转换为 json的格式
+            return (JsonNode)DateTime.Parse(config.Value ?? string.Empty).ToString("yyyy-MM-ddTHH:mm:ss");
+        }
+        else if (config.Type == ConfigModelType.DateOnly&& !string.IsNullOrEmpty(config.Value))
+        {
+            //config.value的格式为 4/2/2024 10:19:02 PM 需要转换为 json的格式
+            return (JsonNode)DateTime.Parse(config.Value.Split(' ')[0] ?? string.Empty).ToString("yyyy-MM-dd");
+        }
+        else if (config.Type == ConfigModelType.TimeOnly && !string.IsNullOrEmpty(config.Value))
+        {
+            //config.value的格式为 4/2/2024 10:19:02 PM 需要转换为 json的格式
+            return (JsonNode)DateTime.Parse(config.Value.Split(' ')[1] ?? string.Empty).ToString("HH:mm:ss");
         }
         else
         {
