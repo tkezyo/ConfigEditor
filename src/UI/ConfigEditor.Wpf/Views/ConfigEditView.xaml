@@ -27,7 +27,7 @@
             <ItemsControl ItemsSource="{Binding Configs}">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
-                        <c:PropertiyView   SetArrayCommand="{Binding DataContext.SetArrayCommand,RelativeSource={RelativeSource AncestorType=ItemsControl, Mode=FindAncestor}}" SetObjectCommand="{Binding DataContext.SetObjectCommand,RelativeSource={RelativeSource AncestorType=ItemsControl, Mode=FindAncestor}}"></c:PropertiyView>
+                        <c:PropertiyView   AddCommand="{Binding DataContext.AddArrayCommand,RelativeSource={RelativeSource AncestorType=ItemsControl, Mode=FindAncestor}}" SetObjectCommand="{Binding DataContext.SetObjectCommand,RelativeSource={RelativeSource AncestorType=ItemsControl, Mode=FindAncestor}}"></c:PropertiyView>
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
             </ItemsControl>

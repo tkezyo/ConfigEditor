@@ -38,9 +38,7 @@ public class DemoConfig
     public List<Demo2> Demo2s { get; set; } = [];
     public List<int> Ints { get; set; } = [];
     public List<List<int>> IntInts { get; set; } = [];
-    [DimLength(1, 0, 3)]
     public double[][][] Doubledoubledoubles { get; set; } = [];
-
 }
 
 public class Demo2

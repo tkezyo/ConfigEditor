@@ -21,18 +21,14 @@ public class PropertyModel(string name)
     /// </summary>
     public int? Dim { get; set; }
     public string? SubTypeName { get; set; }
-    /// <summary>
-    /// 各维度的长度
-    /// </summary>
-    public int[]? DimLength { get; set; }
 
 
     public string? DisplayName { get; set; }
     public string? GroupName { get; set; }
     public string? Description { get; set; }
     public string? Prompt { get; set; }
-    public decimal? Minimum { get; set; }
-    public decimal? Maximum { get; set; }
+    public double? Minimum { get; set; }
+    public double? Maximum { get; set; }
     public List<string>? AllowedValues { get; set; }
     public List<string>? DeniedValues { get; set; }
     public bool? Required { get; set; }

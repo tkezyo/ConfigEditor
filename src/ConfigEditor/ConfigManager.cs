@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using System.Numerics;
 using System.Text.Json;
 
@@ -269,18 +270,18 @@ namespace ConfigEditor
                     }
                     else if (type == typeof(double))
                     {
-                        configModel.Minimum = decimal.MinValue;
-                        configModel.Maximum = decimal.MaxValue;
+                        configModel.Minimum = double.MinValue;
+                        configModel.Maximum = double.MaxValue;
                     }
                     else if (type == typeof(float))
                     {
-                        configModel.Minimum = decimal.MinValue;
-                        configModel.Maximum = decimal.MaxValue;
+                        configModel.Minimum = float.MinValue;
+                        configModel.Maximum = float.MaxValue;
                     }
                     else if (type == typeof(decimal))
                     {
-                        configModel.Minimum = decimal.MinValue;
-                        configModel.Maximum = decimal.MaxValue;
+                        configModel.Minimum = double.MinValue;
+                        configModel.Maximum = double.MaxValue;
                     }
                     else if (type == typeof(long))
                     {
@@ -377,16 +378,8 @@ namespace ConfigEditor
                     //Option
                     if (attribute is OptionAttribute optionAttribute)
                     {
-                        if (configModel.Options is null)
-                        {
-                            configModel.Options = [];
-                        }
+                        configModel.Options ??= [];
                         configModel.Options.Add(new KeyValuePair<string, string>(optionAttribute.DisplayName, optionAttribute.Value));
-                    }
-                    //DimLength
-                    if (attribute is DimLengthAttribute demLengthAttribute)
-                    {
-                        configModel.DimLength = demLengthAttribute.Length;
                     }
                 }
 

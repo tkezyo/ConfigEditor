@@ -23,26 +23,3 @@ public sealed class OptionAttribute(string displayName, string value) : Attribut
         get { return value; }
     }
 }
-
-//设置各维度长度的Attr
-[System.AttributeUsage(AttributeTargets.Property, Inherited = false, AllowMultiple = false)]
-public sealed class DimLengthAttribute : Attribute
-{
-    // See the attribute guidelines at 
-    //  http://go.microsoft.com/fwlink/?LinkId=85236
-    readonly int[] length;
-
-    // This is a positional argument
-    public DimLengthAttribute(params int[] length)
-    {
-        this.length = length;
-
-
-    }
-
-    public int[] Length
-    {
-        get { return length; }
-    }
-
-}

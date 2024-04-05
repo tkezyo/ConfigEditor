@@ -109,33 +109,24 @@
         </DataTemplate>
         <DataTemplate x:Key="Array" DataType="vms:ConfigViewModel">
             <StackPanel>
-                <TextBlock Text="{Binding DisplayName}" ToolTip="{Binding Description}" VerticalAlignment="Center"/>
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="{Binding DisplayName}" ToolTip="{Binding Description}" VerticalAlignment="Center"/>
+                    <TextBlock Text="{Binding Dim,StringFormat={}[{0}]}" ToolTip="{Binding Description}" VerticalAlignment="Center"/>
+                </StackPanel>
 
                 <Border BorderBrush="Gray" BorderThickness="1" Padding="6" ToolTip="{Binding DisplayName}">
                     <StackPanel >
-                        <StackPanel Orientation="Horizontal">
-                            <ItemsControl ItemsSource="{Binding DimLength}"  AlternationCount="{Binding DimLength.Count}" >
-                                <ItemsControl.ItemsPanel>
-                                    <ItemsPanelTemplate>
-                                        <WrapPanel Orientation="Horizontal"/>
-                                    </ItemsPanelTemplate>
-                                </ItemsControl.ItemsPanel>
-                                <ItemsControl.ItemTemplate>
-                                    <DataTemplate>
-                                        <TextBox Margin="5,0" Text="{Binding  Length}" IsReadOnly="{Binding ReadOnly}" Style="{StaticResource TextBoxExtend.Small}" hc:InfoElement.TitlePlacement="Left" hc:InfoElement.Title="{Binding DisplayName}"/>
-                                    </DataTemplate>
-                                </ItemsControl.ItemTemplate>
-                            </ItemsControl>
-                            <Button Content="应用" Command="{Binding SetArrayCommand,ElementName=page}" CommandParameter="{Binding .}" VerticalAlignment="Top" HorizontalAlignment="Right" Style="{StaticResource ButtonPrimary.Small}"/>
-                        </StackPanel>
+                        <Button Content="添加" Command="{Binding AddCommand,ElementName=page}" CommandParameter="{Binding .}" VerticalAlignment="Top" HorizontalAlignment="Left" Style="{StaticResource ButtonPrimary.Small}"/>
 
                         <ItemsControl ItemsSource="{Binding Properties}" >
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
-                                    <local:PropertiyView DataContext="{Binding}" 
-                                                         SetArrayCommand="{Binding SetArrayCommand,RelativeSource={RelativeSource AncestorType=UserControl, Mode=FindAncestor}}" 
+                                    <Grid >
+                                        <local:PropertiyView DataContext="{Binding}" 
+                                                         AddCommand="{Binding AddCommand,RelativeSource={RelativeSource AncestorType=UserControl, Mode=FindAncestor}}" 
                                                          SetObjectCommand="{Binding SetObjectCommand,RelativeSource={RelativeSource AncestorType=UserControl, Mode=FindAncestor}}"/>
-                                    <!--<Button Content="✖" Command="{Binding RemoveCommand,ElementName=page}"  CommandParameter="{Binding .}" ToolTip="{Binding Path=(ItemsControl.AlternationIndex),                 RelativeSource={RelativeSource Mode=TemplatedParent}}" HorizontalAlignment="Right" VerticalAlignment="Top"/>-->
+                                        <Button Content="删除" Style="{StaticResource ButtonDanger.Small}" Command="{Binding RemoveCommand,ElementName=page}"  CommandParameter="{Binding .}" ToolTip="{Binding Path=(ItemsControl.AlternationIndex),                 RelativeSource={RelativeSource Mode=TemplatedParent}}" HorizontalAlignment="Right" VerticalAlignment="Top"/>
+                                    </Grid>
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>
@@ -154,7 +145,7 @@
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
                                     <local:PropertiyView DataContext="{Binding}" 
-                                                     SetArrayCommand="{Binding SetArrayCommand,RelativeSource={RelativeSource AncestorType=UserControl, Mode=FindAncestor}}" 
+                                                     AddCommand="{Binding AddCommand,RelativeSource={RelativeSource AncestorType=UserControl, Mode=FindAncestor}}" 
                                                      SetObjectCommand="{Binding SetObjectCommand,RelativeSource={RelativeSource AncestorType=UserControl, Mode=FindAncestor}}"/>
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
