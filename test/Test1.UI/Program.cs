@@ -25,6 +25,8 @@ class Program
        .Enrich.FromLogContext();
 
         var host = await IModule.CreateApplicationHost<Test1UIModule>(args, skipVerification: true) ?? throw new Exception();
+
+
         Thread thread = new(async () =>
         {
             await host.RunAsync();

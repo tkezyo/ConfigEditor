@@ -1,6 +1,4 @@
-﻿using System.ComponentModel;
-using System.ComponentModel.DataAnnotations;
-using System.Numerics;
+﻿using System.ComponentModel.DataAnnotations;
 using System.Text.Json;
 
 namespace ConfigEditor
@@ -20,8 +18,6 @@ namespace ConfigEditor
 
                 //显示中文编码
                 Encoder = System.Text.Encodings.Web.JavaScriptEncoder.Create(System.Text.Unicode.UnicodeRanges.All)
-
-
             };
         }
         /// <summary>
