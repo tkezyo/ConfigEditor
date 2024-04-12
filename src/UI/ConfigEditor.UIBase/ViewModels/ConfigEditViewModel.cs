@@ -29,10 +29,9 @@ public class ConfigEditViewModel : ViewModelBase
         SetObjectCommand = ReactiveCommand.Create<ConfigViewModel>(SetObject);
     }
 
-    [Reactive]
-    public string? Path { get; set; }
 
     public ObservableCollection<ConfigViewModel> Configs { get; set; } = [];
+    public ObservableCollection<ConfigInfoViewModel> ConfigInfo { get; set; } = [];
     public ReactiveCommand<Unit, Unit> LoadConfigCommand { get; }
     private List<ConfigModel>? _configModels;
     //读取 definition.json
@@ -49,58 +48,66 @@ public class ConfigEditViewModel : ViewModelBase
         {
             return;
         }
-        var file = files[0];
-        if (file.Contains("definition"))
+        foreach (var item in files)
         {
-            file = file.Replace("definition.", "");
-        }
-        Path = file;
-        //读取配置文件
-        var configStr = await File.ReadAllTextAsync(file);
-        //读取定义文件
-        var definitionStr = await File.ReadAllTextAsync(file.Replace(".json", ".definition.json"));
-        //解析定义文件
-        var definition = JsonSerializer.Deserialize<List<ConfigModel>>(definitionStr);
-        _configModels = definition;
-        // 配置信息转换为JsonObject
-        var config = JsonSerializer.Deserialize<JsonObject>(configStr);
-
-        //转换为ViewModel
-        var main = definition?.FirstOrDefault(c => c.MainType);
-
-        if (main is not null)
-        {
-            foreach (var item in main.PropertyModels)
+            var file = item;
+            if (file.Contains("definition"))
             {
-                SetConfigViewModel(item, config, definition, Configs);
+                file = file.Replace("definition.", "");
             }
-        }
+            //读取配置文件
+            var configStr = await File.ReadAllTextAsync(file);
+            //读取定义文件
+            var definitionStr = await File.ReadAllTextAsync(file.Replace(".json", ".definition.json"));
+            //解析定义文件
+            var definition = JsonSerializer.Deserialize<List<ConfigModel>>(definitionStr);
+            _configModels = definition;
+            // 配置信息转换为JsonObject
+            var config = JsonSerializer.Deserialize<JsonObject>(configStr);
 
-        //订阅所有属性的ValidationContext，当有属性的ValidationContext发生变化时，重新计算HasErrors
-        this.Configs.ToObservableChangeSet().ActOnEveryObject(c =>
-        {
-            this.ValidationContext.Add(c.ValidationContext);
-        }, c =>
-        {
-            this.ValidationContext.Remove(c.ValidationContext);
-        });
+            //转换为ViewModel
+            var main = definition?.FirstOrDefault(c => c.MainType);
+
+            ConfigInfoViewModel configInfoViewModel = new()
+            {
+                Name = Path.GetFileNameWithoutExtension(file),
+                FilePath = file
+            };
+
+            if (main is not null)
+            {
+                foreach (var property in main.PropertyModels)
+                {
+                    SetConfigViewModel(property, config, definition, configInfoViewModel.Configs);
+                }
+            }
+            ConfigInfo.Add(configInfoViewModel);
+
+            //订阅所有属性的ValidationContext，当有属性的ValidationContext发生变化时，重新计算HasErrors
+            this.ConfigInfo.ToObservableChangeSet().ActOnEveryObject(c =>
+            {
+                this.ValidationContext.Add(c.ValidationContext);
+            }, c =>
+            {
+                this.ValidationContext.Remove(c.ValidationContext);
+            });
+        }
     }
 
     public ReactiveCommand<Unit, Unit> SaveConfigCommand { get; }
     public async Task SaveConfig()
     {
-        if (Path is null)
+        foreach (var item in ConfigInfo)
         {
-            return;
-        }
-        var config = new JsonObject();
+            var config = new JsonObject();
 
-        foreach (var item in Configs)
-        {
-            config[item.Name] = SetJsonNode(item);
-        }
+            foreach (var item2 in item.Configs)
+            {
+                config[item2.Name] = SetJsonNode(item2);
+            }
 
-        await File.WriteAllTextAsync(Path, config.ToString());
+            await File.WriteAllTextAsync(item.FilePath, config.ToString());
+        }
         await _messageBoxManager.Alert.Handle(new AlertInfo("保存成功"));
     }
 
@@ -378,12 +385,12 @@ public class ConfigEditViewModel : ViewModelBase
                             Options = new ObservableCollection<KeyValuePair<string, string>>(propertyModel.Options ?? []),
                             Required = propertyModel.Required ?? false,
                             RegularExpression = propertyModel.RegularExpression,
-                             AllowedValuesErrorMessage = propertyModel.AllowedValuesErrorMessage,
-                             DeniedValuesErrorMessage = propertyModel.DeniedValuesErrorMessage,
-                             RegularExpressionErrorMessage = propertyModel.RegularExpressionErrorMessage,
-                             RequiredErrorMessage = propertyModel.RequiredErrorMessage,
-                             RangeErrorMessage = propertyModel.RangeErrorMessage,
-                             LengthErrorMessage = propertyModel.LengthErrorMessage,
+                            AllowedValuesErrorMessage = propertyModel.AllowedValuesErrorMessage,
+                            DeniedValuesErrorMessage = propertyModel.DeniedValuesErrorMessage,
+                            RegularExpressionErrorMessage = propertyModel.RegularExpressionErrorMessage,
+                            RequiredErrorMessage = propertyModel.RequiredErrorMessage,
+                            RangeErrorMessage = propertyModel.RangeErrorMessage,
+                            LengthErrorMessage = propertyModel.LengthErrorMessage,
 
                         };
                         subConfigViewModel.SetValidationRule();
@@ -462,12 +469,12 @@ public class ConfigEditViewModel : ViewModelBase
                 Dim = subDim,
                 SubType = configViewModel.SubType,
                 SubTypeName = configViewModel.SubTypeName,
-                 AllowedValuesErrorMessage = configViewModel.AllowedValuesErrorMessage,
-                 DeniedValuesErrorMessage = configViewModel.DeniedValuesErrorMessage,
-                 RegularExpressionErrorMessage = configViewModel.RegularExpressionErrorMessage,
-                 RequiredErrorMessage = configViewModel.RequiredErrorMessage,
-                 RangeErrorMessage = configViewModel.RangeErrorMessage,
-                 LengthErrorMessage = configViewModel.LengthErrorMessage,
+                AllowedValuesErrorMessage = configViewModel.AllowedValuesErrorMessage,
+                DeniedValuesErrorMessage = configViewModel.DeniedValuesErrorMessage,
+                RegularExpressionErrorMessage = configViewModel.RegularExpressionErrorMessage,
+                RequiredErrorMessage = configViewModel.RequiredErrorMessage,
+                RangeErrorMessage = configViewModel.RangeErrorMessage,
+                LengthErrorMessage = configViewModel.LengthErrorMessage,
 
             };
             configViewModel1.SetValidationRule();
@@ -566,12 +573,32 @@ public class ConfigEditViewModel : ViewModelBase
     }
 }
 
+public class ConfigInfoViewModel : ReactiveValidationObject
+{
+    public ConfigInfoViewModel()
+    {
+        this.Configs.ToObservableChangeSet().ActOnEveryObject(c =>
+        {
+            this.ValidationContext.Add(c.ValidationContext);
+        }, c =>
+        {
+            this.ValidationContext.Remove(c.ValidationContext);
+        });
+    }
+    [Reactive]
+    public required string Name { get; set; }
+    [Reactive]
+    public ObservableCollection<ConfigViewModel> Configs { get; set; } = [];
+    [Reactive]
+    public required string FilePath { get; set; }
+}
+
 public class ConfigViewModel : ReactiveValidationObject
 {
     public ConfigViewModel(string name)
     {
         this.Name = name;
-     
+
 
 
         this.Properties.ToObservableChangeSet().ActOnEveryObject(c =>
@@ -584,6 +611,39 @@ public class ConfigViewModel : ReactiveValidationObject
     }
     public void SetValidationRule()
     {
+        if (!string.IsNullOrEmpty(RequiredErrorMessage))
+        {
+            RequiredErrorMessage = string.Format(RequiredErrorMessage, Name);
+        }
+
+        if (!string.IsNullOrEmpty(AllowedValuesErrorMessage))
+        {
+            AllowedValuesErrorMessage = string.Format(AllowedValuesErrorMessage, Name);
+        }
+
+        if (!string.IsNullOrEmpty(DeniedValuesErrorMessage))
+        {
+            DeniedValuesErrorMessage = string.Format(DeniedValuesErrorMessage, Name);
+        }
+
+        if (!string.IsNullOrEmpty(RegularExpressionErrorMessage))
+        {
+            RegularExpressionErrorMessage = string.Format(RegularExpressionErrorMessage, Name);
+        }
+
+        if (!string.IsNullOrEmpty(RangeErrorMessage))
+        {
+            RangeErrorMessage = string.Format(RangeErrorMessage, Name);
+        }
+
+        if (!string.IsNullOrEmpty(LengthErrorMessage))
+        {
+            LengthErrorMessage = string.Format(LengthErrorMessage, Name);
+        }
+
+
+
+
         this.ValidationRule(
         viewModel => viewModel.Value,
         name =>

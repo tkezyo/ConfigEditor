@@ -12,13 +12,19 @@
              Validation.ErrorTemplate="{x:Null}"
              d:DesignHeight="450" d:DesignWidth="800">
     <UserControl.Resources>
+        <Style TargetType="TextBlock" x:Key="tb" BasedOn="{StaticResource TextBlockBaseStyle}">
+            <Setter Property="TextAlignment" Value="Left"/>
+            <Setter Property="HorizontalAlignment" Value="Left"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
+        </Style>
         <converters:TimeOnlyConverter x:Key="TimeOnlyConverter"></converters:TimeOnlyConverter>
         <converters:StringBoolConverter x:Key="StringBoolConverter"></converters:StringBoolConverter>
         <converters:StringDoubleConverter x:Key="StringDoubleConverter"></converters:StringDoubleConverter>
         <converters:ObjStringConverter x:Key="ObjStringConverter"></converters:ObjStringConverter>
         <DataTemplate x:Key="Normal">
             <StackPanel>
-                <TextBlock Text="{Binding DisplayName}" VerticalAlignment="Center" />
+                <TextBlock Text="{Binding DisplayName}" Style="{StaticResource tb}" />
                 <TextBox Text="{Binding Value,UpdateSourceTrigger=PropertyChanged}" x:Name="tbString" Validation.ErrorTemplate="{x:Null}" Style="{StaticResource TextBoxExtend}" hc:InfoElement.Placeholder="{Binding Prompt}"></TextBox>
                 <ItemsControl ItemsSource="{Binding (Validation.Errors),ElementName=tbString}" Visibility="{Binding (Validation.HasError), ElementName=tbString, Converter={StaticResource Boolean2VisibilityConverter}}">
                     <ItemsControl.ItemTemplate>
@@ -31,7 +37,7 @@
         </DataTemplate>
         <DataTemplate x:Key="Number">
             <StackPanel>
-                <TextBlock Text="{Binding DisplayName}" VerticalAlignment="Center"/>
+                <TextBlock Text="{Binding DisplayName}"  Style="{StaticResource tb}" />
                 <hc:NumericUpDown Value="{Binding Value,Converter={StaticResource StringDoubleConverter},UpdateSourceTrigger=PropertyChanged}" Maximum="{Binding Maximum}" Minimum="{Binding Minimum}" Validation.ErrorTemplate="{x:Null}" x:Name="tbNumber"  Style="{StaticResource NumericUpDownExtend}" hc:InfoElement.Placeholder="{Binding Prompt}"/>
                 <ItemsControl ItemsSource="{Binding (Validation.Errors),ElementName=tbNumber}" Visibility="{Binding (Validation.HasError), ElementName=tbNumber, Converter={StaticResource Boolean2VisibilityConverter}}">
                     <ItemsControl.ItemTemplate>
@@ -57,7 +63,7 @@
         </DataTemplate>
         <DataTemplate x:Key="Enum">
             <StackPanel>
-                <TextBlock Text="{Binding DisplayName}" VerticalAlignment="Center"/>
+                <TextBlock Text="{Binding DisplayName}"  Style="{StaticResource tb}" />
                 <ComboBox ItemsSource="{Binding Options}" SelectedValue="{Binding Value,UpdateSourceTrigger=PropertyChanged}" SelectedValuePath="Value" DisplayMemberPath="Key" x:Name="cb" Style="{StaticResource ComboBoxExtend}" hc:InfoElement.Placeholder="{Binding Prompt}"/>
                 <ItemsControl ItemsSource="{Binding (Validation.Errors),ElementName=cb}" Visibility="{Binding (Validation.HasError), ElementName=cb, Converter={StaticResource Boolean2VisibilityConverter}}">
                     <ItemsControl.ItemTemplate>
@@ -70,7 +76,7 @@
         </DataTemplate>
         <DataTemplate x:Key="DateTime">
             <StackPanel>
-                <TextBlock Text="{Binding DisplayName}" VerticalAlignment="Center"/>
+                <TextBlock Text="{Binding DisplayName}"  Style="{StaticResource tb}" />
                 <hc:DateTimePicker SelectedDateTime="{Binding Value,UpdateSourceTrigger=PropertyChanged}" x:Name="dtp" DateTimeFormat="yyyy-MM-dd HH:mm:ss" Style="{StaticResource DateTimePickerExtend}" hc:InfoElement.Placeholder="{Binding Prompt}"/>
                 <ItemsControl ItemsSource="{Binding (Validation.Errors),ElementName=dtp}" Visibility="{Binding (Validation.HasError), ElementName=dtp, Converter={StaticResource Boolean2VisibilityConverter}}">
                     <ItemsControl.ItemTemplate>
@@ -83,7 +89,7 @@
         </DataTemplate>
         <DataTemplate x:Key="Date">
             <StackPanel>
-                <TextBlock Text="{Binding DisplayName}"  VerticalAlignment="Center"/>
+                <TextBlock Text="{Binding DisplayName}"   Style="{StaticResource tb}" />
                 <hc:DatePicker SelectedDate="{Binding Value,UpdateSourceTrigger=PropertyChanged}" x:Name="dp" hc:InfoElement.Placeholder="{Binding Prompt}" Style="{StaticResource  DatePickerExtend}"/>
                 <ItemsControl ItemsSource="{Binding (Validation.Errors),ElementName=dp}" Visibility="{Binding (Validation.HasError), ElementName=dp, Converter={StaticResource Boolean2VisibilityConverter}}">
                     <ItemsControl.ItemTemplate>
@@ -96,7 +102,7 @@
         </DataTemplate>
         <DataTemplate x:Key="Time">
             <StackPanel>
-                <TextBlock Text="{Binding DisplayName}"  VerticalAlignment="Center"/>
+                <TextBlock Text="{Binding DisplayName}"  Style="{StaticResource tb}" />
                 <hc:TimePicker SelectedTime="{Binding Value,UpdateSourceTrigger=PropertyChanged}" x:Name="tp" TimeFormat="HH:mm:ss" Style="{StaticResource TimePickerExtend}" hc:InfoElement.Placeholder="{Binding Prompt}"/>
                 <ItemsControl ItemsSource="{Binding (Validation.Errors),ElementName=tp}" Visibility="{Binding (Validation.HasError), ElementName=tp, Converter={StaticResource Boolean2VisibilityConverter}}">
                     <ItemsControl.ItemTemplate>
@@ -110,8 +116,8 @@
         <DataTemplate x:Key="Array" DataType="vms:ConfigViewModel">
             <StackPanel>
                 <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="{Binding DisplayName}"  VerticalAlignment="Center"/>
-                    <TextBlock Text="{Binding Dim,StringFormat={}[{0}]}"  VerticalAlignment="Center"/>
+                    <TextBlock Text="{Binding DisplayName}"  Style="{StaticResource tb}" />
+                    <TextBlock Text="{Binding Dim,StringFormat={}[{0}]}"  Style="{StaticResource tb}" />
                 </StackPanel>
 
                 <Border BorderBrush="Gray" BorderThickness="1" Padding="6" ToolTip="{Binding DisplayName}">
@@ -136,7 +142,7 @@
         </DataTemplate>
         <DataTemplate x:Key="Object" DataType="vms:ConfigViewModel">
             <StackPanel>
-                <TextBlock Text="{Binding DisplayName}"  VerticalAlignment="Center"/>
+                <TextBlock Text="{Binding DisplayName}" Style="{StaticResource tb}" />
 
                 <Border BorderBrush="Gray" BorderThickness="1" Padding="4">
                     <StackPanel>

@@ -20,17 +20,27 @@
         <StackPanel Orientation="Horizontal">
             <Button Content="打开" Command="{Binding LoadConfigCommand}"/>
             <Button Content="保存" Command="{Binding SaveConfigCommand}"/>
-            <TextBlock Text="{Binding Path}" VerticalAlignment="Center"/>
         </StackPanel>
 
-        <ScrollViewer Grid.Row="1" Padding="10">
-            <ItemsControl ItemsSource="{Binding Configs}">
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                        <c:PropertiyView   AddCommand="{Binding DataContext.AddArrayCommand,RelativeSource={RelativeSource AncestorType=ItemsControl, Mode=FindAncestor}}" SetObjectCommand="{Binding DataContext.SetObjectCommand,RelativeSource={RelativeSource AncestorType=ItemsControl, Mode=FindAncestor}}"></c:PropertiyView>
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
-        </ScrollViewer>
+        <TabControl ItemsSource="{Binding ConfigInfo}" Grid.Row="1" Padding="10">
+            <TabControl.ItemTemplate>
+                <DataTemplate>
+                    <TextBlock Text="{Binding Name}"/>
+                </DataTemplate>
+            </TabControl.ItemTemplate>
+            <TabControl.ContentTemplate>
+                <DataTemplate>
+                    <ScrollViewer Margin="10">
+                        <ItemsControl ItemsSource="{Binding Configs}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <c:PropertiyView   AddCommand="{Binding DataContext.AddArrayCommand,RelativeSource={RelativeSource AncestorType=TabControl, Mode=FindAncestor}}" SetObjectCommand="{Binding DataContext.SetObjectCommand,RelativeSource={RelativeSource AncestorType=TabControl, Mode=FindAncestor}}"></c:PropertiyView>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+                </DataTemplate>
+            </TabControl.ContentTemplate>
+        </TabControl>
     </Grid>
 </rxui:ReactiveUserControl>
