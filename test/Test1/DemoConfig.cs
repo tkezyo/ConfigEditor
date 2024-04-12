@@ -5,18 +5,20 @@ namespace Test1;
 
 public class DemoConfig
 {
-    [AllowedValues("123", "123")]
+    [AllowedValues("123", "456")]
     [Required]
     [Length(1, 10)]
+    [Display(Name = "字符串", Description = "sdfw", GroupName = "sdfff", Prompt = "字符串")]
     public string? String { get; set; }
     [Range(1, 10)]
     [Required]
-    [Display(Name = "数字")]
-    [DeniedValues(1, 2)]
+    [Display(Name = "数字", Description = "sdfw", GroupName = "sdfff", Prompt = "请输入数字")]
+    [DeniedValues(1, 2, ErrorMessage = "不允许输入1,2")]
     public int Int { get; set; }
     public bool Bool { get; set; }
     [Option("11", "1")]
     [Option("22", "2")]
+    [Display(Name = "数字", Description = "sdfw", GroupName = "sdfff", Prompt = "请选择")]
     public double Double { get; set; }
     [RegularExpression("123")]
     public float Float { get; set; }
@@ -30,6 +32,8 @@ public class DemoConfig
     public byte Byte { get; set; }
     public sbyte SByte { get; set; }
     public char Char { get; set; }
+    [Display(Name = "DateTime", Description = "sdfw", GroupName = "sdfff", Prompt = "请输入时间")]
+
     public DateTime DateTime { get; set; }
     public DateOnly DateOnly { get; set; }
     public TimeOnly TimeOnly { get; set; }

@@ -18,12 +18,10 @@ namespace ConfigEditor.ViewModels;
 public class ConfigEditViewModel : ViewModelBase
 {
     private readonly IMessageBoxManager _messageBoxManager;
-    private readonly ConfigManager _configManager;
 
-    public ConfigEditViewModel(IMessageBoxManager messageBoxManager, ConfigManager configManager)
+    public ConfigEditViewModel(IMessageBoxManager messageBoxManager)
     {
         this._messageBoxManager = messageBoxManager;
-        this._configManager = configManager;
         LoadConfigCommand = ReactiveCommand.CreateFromTask(LoadConfig);
         SaveConfigCommand = ReactiveCommand.CreateFromTask(SaveConfig, this.ValidationContext.Valid);
         AddPropertyCommand = ReactiveCommand.Create<ConfigViewModel>(AddProperty);
@@ -289,8 +287,15 @@ public class ConfigEditViewModel : ViewModelBase
             RegularExpression = propertyModel.RegularExpression,
             Dim = propertyModel.Dim,
             Order = propertyModel.Order,
+            AllowedValuesErrorMessage = propertyModel.AllowedValuesErrorMessage,
+            DeniedValuesErrorMessage = propertyModel.DeniedValuesErrorMessage,
+            RegularExpressionErrorMessage = propertyModel.RegularExpressionErrorMessage,
+            RequiredErrorMessage = propertyModel.RequiredErrorMessage,
+            RangeErrorMessage = propertyModel.RangeErrorMessage,
+            LengthErrorMessage = propertyModel.LengthErrorMessage,
         };
 
+        configViewModelProperty.SetValidationRule();
 
         if (config is not null)
         {
@@ -333,7 +338,14 @@ public class ConfigEditViewModel : ViewModelBase
                                 Options = new ObservableCollection<KeyValuePair<string, string>>(propertyModel.Options ?? []),
                                 Required = propertyModel.Required ?? false,
                                 RegularExpression = propertyModel.RegularExpression,
+                                AllowedValuesErrorMessage = propertyModel.AllowedValuesErrorMessage,
+                                DeniedValuesErrorMessage = propertyModel.DeniedValuesErrorMessage,
+                                RegularExpressionErrorMessage = propertyModel.RegularExpressionErrorMessage,
+                                RequiredErrorMessage = propertyModel.RequiredErrorMessage,
+                                RangeErrorMessage = propertyModel.RangeErrorMessage,
+                                LengthErrorMessage = propertyModel.LengthErrorMessage,
                             };
+                            subConfigViewModel.SetValidationRule();
 
                             foreach (var item in jsonArray)
                             {
@@ -366,7 +378,16 @@ public class ConfigEditViewModel : ViewModelBase
                             Options = new ObservableCollection<KeyValuePair<string, string>>(propertyModel.Options ?? []),
                             Required = propertyModel.Required ?? false,
                             RegularExpression = propertyModel.RegularExpression,
+                             AllowedValuesErrorMessage = propertyModel.AllowedValuesErrorMessage,
+                             DeniedValuesErrorMessage = propertyModel.DeniedValuesErrorMessage,
+                             RegularExpressionErrorMessage = propertyModel.RegularExpressionErrorMessage,
+                             RequiredErrorMessage = propertyModel.RequiredErrorMessage,
+                             RangeErrorMessage = propertyModel.RangeErrorMessage,
+                             LengthErrorMessage = propertyModel.LengthErrorMessage,
+
                         };
+                        subConfigViewModel.SetValidationRule();
+
                         if (propertyModel.SubType == ConfigModelType.Object)
                         {
                             var sub = definition?.FirstOrDefault(c => !c.MainType && c.TypeName == propertyModel.SubTypeName);
@@ -441,7 +462,15 @@ public class ConfigEditViewModel : ViewModelBase
                 Dim = subDim,
                 SubType = configViewModel.SubType,
                 SubTypeName = configViewModel.SubTypeName,
+                 AllowedValuesErrorMessage = configViewModel.AllowedValuesErrorMessage,
+                 DeniedValuesErrorMessage = configViewModel.DeniedValuesErrorMessage,
+                 RegularExpressionErrorMessage = configViewModel.RegularExpressionErrorMessage,
+                 RequiredErrorMessage = configViewModel.RequiredErrorMessage,
+                 RangeErrorMessage = configViewModel.RangeErrorMessage,
+                 LengthErrorMessage = configViewModel.LengthErrorMessage,
+
             };
+            configViewModel1.SetValidationRule();
 
             configViewModel.Properties.Add(configViewModel1);
         }
@@ -462,7 +491,15 @@ public class ConfigEditViewModel : ViewModelBase
                 Minimum = configViewModel.Minimum,
                 Maximum = configViewModel.Maximum,
                 DisplayName = configViewModel.DisplayName,
+                AllowedValuesErrorMessage = configViewModel.AllowedValuesErrorMessage,
+                DeniedValuesErrorMessage = configViewModel.DeniedValuesErrorMessage,
+                RegularExpressionErrorMessage = configViewModel.RegularExpressionErrorMessage,
+                RequiredErrorMessage = configViewModel.RequiredErrorMessage,
+                RangeErrorMessage = configViewModel.RangeErrorMessage,
+                LengthErrorMessage = configViewModel.LengthErrorMessage,
             };
+            configViewModel1.SetValidationRule();
+
             if (configViewModel.SubType == ConfigModelType.Object)
             {
                 var property = _configModels?.FirstOrDefault(c => c.TypeName == configViewModel.SubTypeName);
@@ -509,6 +546,7 @@ public class ConfigEditViewModel : ViewModelBase
             {
                 Type = configViewModel.SubType.Value
             };
+            configViewModel1.SetValidationRule();
             if (configViewModel.SubType == ConfigModelType.Object)
             {
                 var property = _configModels?.FirstOrDefault(c => c.TypeName == configViewModel.SubTypeName);
@@ -533,16 +571,29 @@ public class ConfigViewModel : ReactiveValidationObject
     public ConfigViewModel(string name)
     {
         this.Name = name;
+     
+
+
+        this.Properties.ToObservableChangeSet().ActOnEveryObject(c =>
+        {
+            this.ValidationContext.Add(c.ValidationContext);
+        }, c =>
+        {
+            this.ValidationContext.Remove(c.ValidationContext);
+        });
+    }
+    public void SetValidationRule()
+    {
         this.ValidationRule(
-           viewModel => viewModel.Value,
-           name =>
-           {
-               if (Required && string.IsNullOrWhiteSpace(name))
-               {
-                   return false;
-               }
-               return true;
-           }, "必填");
+        viewModel => viewModel.Value,
+        name =>
+        {
+            if (Required && string.IsNullOrWhiteSpace(name))
+            {
+                return false;
+            }
+            return true;
+        }, RequiredErrorMessage ?? "必填");
 
         this.ValidationRule(
             viewModel => viewModel.Value,
@@ -553,7 +604,7 @@ public class ConfigViewModel : ReactiveValidationObject
                     return false;
                 }
                 return true;
-            }, "不在允许的范围内");
+            }, AllowedValuesErrorMessage ?? "不在允许的范围内");
 
         this.ValidationRule(
             viewModel => viewModel.Value,
@@ -564,7 +615,7 @@ public class ConfigViewModel : ReactiveValidationObject
                     return false;
                 }
                 return true;
-            }, "在禁止的范围内");
+            }, DeniedValuesErrorMessage ?? "在禁止的范围内");
 
         this.ValidationRule(
             viewModel => viewModel.Value,
@@ -593,7 +644,7 @@ public class ConfigViewModel : ReactiveValidationObject
                     }
                 }
                 return true;
-            }, "不是数字");
+            }, RangeErrorMessage ?? "范围错误");
 
         this.ValidationRule(
             viewModel => viewModel.Value,
@@ -661,26 +712,29 @@ public class ConfigViewModel : ReactiveValidationObject
                     {
                         return false;
                     }
-                    if (name?.Length > Maximum)
-                    {
-                        return false;
-                    }
-                    if (name?.Length < Minimum)
-                    {
-                        return false;
-                    }
                 }
                 return true;
-            }, "不符合正则表达式");
+            }, RegularExpressionErrorMessage ?? "不符合正则表达式");
 
-        this.Properties.ToObservableChangeSet().ActOnEveryObject(c =>
-        {
-            this.ValidationContext.Add(c.ValidationContext);
-        }, c =>
-        {
-            this.ValidationContext.Remove(c.ValidationContext);
-        });
+        this.ValidationRule(
+              viewModel => viewModel.Value,
+              name =>
+              {
+                  if (Type == ConfigModelType.String)
+                  {
+                      if (name?.Length > Maximum)
+                      {
+                          return false;
+                      }
+                      if (name?.Length < Minimum)
+                      {
+                          return false;
+                      }
+                  }
+                  return true;
+              }, LengthErrorMessage ?? "长度错误");
     }
+
     [Reactive]
     public string Name { get; set; }
     [Reactive]
@@ -719,7 +773,12 @@ public class ConfigViewModel : ReactiveValidationObject
     [Reactive]
     public int? Dim { get; set; }
 
-
+    public string? LengthErrorMessage { get; set; }
+    public string? AllowedValuesErrorMessage { get; set; }
+    public string? DeniedValuesErrorMessage { get; set; }
+    public string? RegularExpressionErrorMessage { get; set; }
+    public string? RequiredErrorMessage { get; set; }
+    public string? RangeErrorMessage { get; set; }
     [Reactive]
     public ObservableCollection<ConfigViewModel> Properties { get; set; } = [];
 }

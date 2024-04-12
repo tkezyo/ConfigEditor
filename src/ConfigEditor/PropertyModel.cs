@@ -33,6 +33,14 @@ public class PropertyModel(string name)
     public List<string>? DeniedValues { get; set; }
     public bool? Required { get; set; }
     public string? RegularExpression { get; set; }
+    public string? LengthErrorMessage { get; set; }
+    public string? AllowedValuesErrorMessage { get; set; }
+    public string? DeniedValuesErrorMessage { get; set; }
+    public string? RegularExpressionErrorMessage { get; set; }
+    public string? RequiredErrorMessage { get; set; }
+    public string? RangeErrorMessage { get; set; }
+
+
     public List<KeyValuePair<string, string>>? Options { get; set; }
 }
 

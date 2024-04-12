@@ -335,41 +335,50 @@ namespace ConfigEditor
                     {
                         configModel.Minimum = (int)rangeAttribute.Minimum;
                         configModel.Maximum = (int)rangeAttribute.Maximum;
+                        configModel.RangeErrorMessage = rangeAttribute.ErrorMessage;
                     }
                     //如果是Required
                     if (attribute is RequiredAttribute requiredAttribute)
                     {
                         configModel.Required = true;
+                        configModel.RequiredErrorMessage = requiredAttribute.ErrorMessage;
                     }
                     //如果是AllowedValues
                     if (attribute is AllowedValuesAttribute allowedValuesAttribute)
                     {
                         configModel.AllowedValues = allowedValuesAttribute.Values.Select(c => c?.ToString() ?? string.Empty).ToList();
+
+                        configModel.AllowedValuesErrorMessage = allowedValuesAttribute.ErrorMessage;
                     }
                     //如果是DeniedValues
                     if (attribute is DeniedValuesAttribute deniedValuesAttribute)
                     {
                         configModel.DeniedValues = deniedValuesAttribute.Values.Select(c => c?.ToString() ?? string.Empty).ToList();
+                        configModel.DeniedValuesErrorMessage = deniedValuesAttribute.ErrorMessage;
                     }
                     if (attribute is LengthAttribute lengthAttribute)
                     {
                         configModel.Minimum = lengthAttribute.MinimumLength;
                         configModel.Maximum = lengthAttribute.MaximumLength;
+                        configModel.LengthErrorMessage = lengthAttribute.ErrorMessage;
                     }
                     //MaxLength
                     if (attribute is MaxLengthAttribute maxLengthAttribute)
                     {
                         configModel.Maximum = maxLengthAttribute.Length;
+                        configModel.LengthErrorMessage = maxLengthAttribute.ErrorMessage;
                     }
                     //minLength
                     if (attribute is MinLengthAttribute minLengthAttribute)
                     {
                         configModel.Minimum = minLengthAttribute.Length;
+                        configModel.LengthErrorMessage = minLengthAttribute.ErrorMessage;
                     }
                     //RegularExpression
                     if (attribute is RegularExpressionAttribute regularExpressionAttribute)
                     {
                         configModel.RegularExpression = regularExpressionAttribute.Pattern;
+                        configModel.RegularExpressionErrorMessage = regularExpressionAttribute.ErrorMessage;
                     }
                     //Option
                     if (attribute is OptionAttribute optionAttribute)
