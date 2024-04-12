@@ -22,7 +22,7 @@
             <Button Content="保存" Command="{Binding SaveConfigCommand}"/>
         </StackPanel>
 
-        <TabControl ItemsSource="{Binding ConfigInfo}" Grid.Row="1" Padding="10">
+        <TabControl ItemsSource="{Binding ConfigInfo}" Grid.Row="1" Padding="10" SelectedIndex="0">
             <TabControl.ItemTemplate>
                 <DataTemplate>
                     <TextBlock Text="{Binding Name}"/>
