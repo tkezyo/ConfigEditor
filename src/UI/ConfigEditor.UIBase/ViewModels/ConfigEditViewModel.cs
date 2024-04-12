@@ -41,7 +41,7 @@ public class ConfigEditViewModel : ViewModelBase
         {
             Filter = "*.json",
             FilterName = "配置文件",
-            Multiselect = false,
+            Multiselect = true,
             Title = "打开配置"
         });
         if (files.Length == 0)
