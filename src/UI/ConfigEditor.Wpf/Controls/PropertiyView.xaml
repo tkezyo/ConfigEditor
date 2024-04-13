@@ -23,7 +23,7 @@
         <converters:StringDoubleConverter x:Key="StringDoubleConverter"></converters:StringDoubleConverter>
         <converters:ObjStringConverter x:Key="ObjStringConverter"></converters:ObjStringConverter>
         <DataTemplate x:Key="Normal">
-            <StackPanel>
+            <StackPanel Width="200">
                 <TextBlock Text="{Binding DisplayName}" Style="{StaticResource tb}" />
                 <TextBox Text="{Binding Value,UpdateSourceTrigger=PropertyChanged}" x:Name="tbString" Validation.ErrorTemplate="{x:Null}" Style="{StaticResource TextBoxExtend}" hc:InfoElement.Placeholder="{Binding Prompt}"></TextBox>
                 <ItemsControl ItemsSource="{Binding (Validation.Errors),ElementName=tbString}" Visibility="{Binding (Validation.HasError), ElementName=tbString, Converter={StaticResource Boolean2VisibilityConverter}}">
@@ -36,7 +36,7 @@
             </StackPanel>
         </DataTemplate>
         <DataTemplate x:Key="Number">
-            <StackPanel>
+            <StackPanel Width="200">
                 <TextBlock Text="{Binding DisplayName}"  Style="{StaticResource tb}" />
                 <hc:NumericUpDown Value="{Binding Value,Converter={StaticResource StringDoubleConverter},UpdateSourceTrigger=PropertyChanged}" Maximum="{Binding Maximum}" Minimum="{Binding Minimum}" Validation.ErrorTemplate="{x:Null}" x:Name="tbNumber"  Style="{StaticResource NumericUpDownExtend}" hc:InfoElement.Placeholder="{Binding Prompt}"/>
                 <ItemsControl ItemsSource="{Binding (Validation.Errors),ElementName=tbNumber}" Visibility="{Binding (Validation.HasError), ElementName=tbNumber, Converter={StaticResource Boolean2VisibilityConverter}}">
@@ -50,8 +50,8 @@
 
         </DataTemplate>
         <DataTemplate x:Key="Bool">
-            <StackPanel>
-                <CheckBox IsChecked="{Binding Value,Converter={StaticResource StringBoolConverter},UpdateSourceTrigger=PropertyChanged}"  Content="{Binding DisplayName}" x:Name="cbBool" />
+            <StackPanel Width="200" VerticalAlignment="Top" Margin="0,20,0,0"  >
+                <CheckBox IsChecked="{Binding Value,Converter={StaticResource StringBoolConverter},UpdateSourceTrigger=PropertyChanged}"  Content="{Binding DisplayName}" x:Name="cbBool"  />
                 <ItemsControl ItemsSource="{Binding (Validation.Errors),ElementName=cbBool}" Visibility="{Binding (Validation.HasError), ElementName=cbBool, Converter={StaticResource Boolean2VisibilityConverter}}">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
@@ -62,7 +62,7 @@
             </StackPanel>
         </DataTemplate>
         <DataTemplate x:Key="Enum">
-            <StackPanel>
+            <StackPanel Width="200">
                 <TextBlock Text="{Binding DisplayName}"  Style="{StaticResource tb}" />
                 <ComboBox ItemsSource="{Binding Options}" SelectedValue="{Binding Value,UpdateSourceTrigger=PropertyChanged}" SelectedValuePath="Value" DisplayMemberPath="Key" x:Name="cb" Style="{StaticResource ComboBoxExtend}" hc:InfoElement.Placeholder="{Binding Prompt}"/>
                 <ItemsControl ItemsSource="{Binding (Validation.Errors),ElementName=cb}" Visibility="{Binding (Validation.HasError), ElementName=cb, Converter={StaticResource Boolean2VisibilityConverter}}">
@@ -75,7 +75,7 @@
             </StackPanel>
         </DataTemplate>
         <DataTemplate x:Key="DateTime">
-            <StackPanel>
+            <StackPanel Width="200">
                 <TextBlock Text="{Binding DisplayName}"  Style="{StaticResource tb}" />
                 <hc:DateTimePicker SelectedDateTime="{Binding Value,UpdateSourceTrigger=PropertyChanged}" x:Name="dtp" DateTimeFormat="yyyy-MM-dd HH:mm:ss" Style="{StaticResource DateTimePickerExtend}" hc:InfoElement.Placeholder="{Binding Prompt}"/>
                 <ItemsControl ItemsSource="{Binding (Validation.Errors),ElementName=dtp}" Visibility="{Binding (Validation.HasError), ElementName=dtp, Converter={StaticResource Boolean2VisibilityConverter}}">
@@ -88,7 +88,7 @@
             </StackPanel>
         </DataTemplate>
         <DataTemplate x:Key="Date">
-            <StackPanel>
+            <StackPanel Width="200">
                 <TextBlock Text="{Binding DisplayName}"   Style="{StaticResource tb}" />
                 <hc:DatePicker SelectedDate="{Binding Value,UpdateSourceTrigger=PropertyChanged}" x:Name="dp" hc:InfoElement.Placeholder="{Binding Prompt}" Style="{StaticResource  DatePickerExtend}"/>
                 <ItemsControl ItemsSource="{Binding (Validation.Errors),ElementName=dp}" Visibility="{Binding (Validation.HasError), ElementName=dp, Converter={StaticResource Boolean2VisibilityConverter}}">
@@ -101,7 +101,7 @@
             </StackPanel>
         </DataTemplate>
         <DataTemplate x:Key="Time">
-            <StackPanel>
+            <StackPanel Width="200">
                 <TextBlock Text="{Binding DisplayName}"  Style="{StaticResource tb}" />
                 <hc:TimePicker SelectedTime="{Binding Value,UpdateSourceTrigger=PropertyChanged}" x:Name="tp" TimeFormat="HH:mm:ss" Style="{StaticResource TimePickerExtend}" hc:InfoElement.Placeholder="{Binding Prompt}"/>
                 <ItemsControl ItemsSource="{Binding (Validation.Errors),ElementName=tp}" Visibility="{Binding (Validation.HasError), ElementName=tp, Converter={StaticResource Boolean2VisibilityConverter}}">
@@ -118,41 +118,56 @@
                 <StackPanel Orientation="Horizontal">
                     <TextBlock Text="{Binding DisplayName}"  Style="{StaticResource tb}" />
                     <TextBlock Text="{Binding Dim,StringFormat={}[{0}]}"  Style="{StaticResource tb}" />
+                    <Button Content="+" Command="{Binding AddCommand,ElementName=page}" CommandParameter="{Binding .}"  Style="{StaticResource ButtonCustom}" Foreground="Blue" FontWeight="Bold"
+                                            FontSize="16"
+                            />
                 </StackPanel>
 
                 <Border BorderBrush="Gray" BorderThickness="1" Padding="6" ToolTip="{Binding DisplayName}">
-                    <StackPanel >
-                        <Button Content="添加" Command="{Binding AddCommand,ElementName=page}" CommandParameter="{Binding .}" VerticalAlignment="Top" HorizontalAlignment="Left" Style="{StaticResource ButtonPrimary.Small}"/>
 
-                        <ItemsControl ItemsSource="{Binding Properties}" >
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate>
-                                    <Grid >
-                                        <local:PropertiyView DataContext="{Binding}" 
+                    <ItemsControl ItemsSource="{Binding Properties}" AlternationCount="{Binding Properties.Count}" >
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Grid >
+                                    <local:PropertiyView DataContext="{Binding}" 
                                                          AddCommand="{Binding AddCommand,RelativeSource={RelativeSource AncestorType=UserControl, Mode=FindAncestor}}" 
-                                                         SetObjectCommand="{Binding SetObjectCommand,RelativeSource={RelativeSource AncestorType=UserControl, Mode=FindAncestor}}"/>
-                                        <Button Content="删除" Style="{StaticResource ButtonDanger.Small}" Command="{Binding RemoveCommand,ElementName=page}"  CommandParameter="{Binding .}" ToolTip="{Binding Path=(ItemsControl.AlternationIndex),                 RelativeSource={RelativeSource Mode=TemplatedParent}}" HorizontalAlignment="Right" VerticalAlignment="Top"/>
-                                    </Grid>
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
-                    </StackPanel>
+                                                         SetObjectCommand="{Binding SetObjectCommand,RelativeSource={RelativeSource AncestorType=UserControl, Mode=FindAncestor}}" Padding="0,0,10,0"/>
+                                    <Button Content="-" 
+                                            Style="{StaticResource ButtonCustom}"
+                                            Command="{Binding RemoveCommand,ElementName=page}" 
+                                            CommandParameter="{Binding .}"
+                                            ToolTip="{Binding Path=(ItemsControl.AlternationIndex), RelativeSource={RelativeSource Mode=TemplatedParent}}"
+                                            Foreground="Red"
+                                            FontWeight="Bold"
+                                            FontSize="20"
+                                            Margin="0,-10,0,0"
+                                            HorizontalAlignment="Right"
+                                            VerticalAlignment="Top"/>
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
                 </Border>
             </StackPanel>
         </DataTemplate>
         <DataTemplate x:Key="Object" DataType="vms:ConfigViewModel">
-            <StackPanel>
+            <StackPanel >
                 <TextBlock Text="{Binding DisplayName}" Style="{StaticResource tb}" />
 
                 <Border BorderBrush="Gray" BorderThickness="1" Padding="4">
                     <StackPanel>
                         <Button Visibility="{Binding Value,Converter={StaticResource String2VisibilityReConverter}}" Content="创建" Command="{Binding SetObjectCommand,ElementName=page}" CommandParameter="{Binding .}"/>
                         <ItemsControl ItemsSource="{Binding Properties}" Visibility="{Binding Value,Converter={StaticResource String2VisibilityConverter}}">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <WrapPanel/>
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
                                     <local:PropertiyView DataContext="{Binding}" 
                                                      AddCommand="{Binding AddCommand,RelativeSource={RelativeSource AncestorType=UserControl, Mode=FindAncestor}}" 
-                                                     SetObjectCommand="{Binding SetObjectCommand,RelativeSource={RelativeSource AncestorType=UserControl, Mode=FindAncestor}}"/>
+                                                     SetObjectCommand="{Binding SetObjectCommand,RelativeSource={RelativeSource AncestorType=UserControl, Mode=FindAncestor}}" Margin="2,0"/>
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>
