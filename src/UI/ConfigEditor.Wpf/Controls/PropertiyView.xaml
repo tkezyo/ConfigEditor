@@ -135,28 +135,34 @@
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
                                 <Grid  HorizontalAlignment="Left">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Button Content="-" 
+                                        Style="{StaticResource ButtonCustom}"
+                                        Command="{Binding RemoveCommand,ElementName=page}" 
+                                        CommandParameter="{Binding .}"
+                                        ToolTip="{Binding Path=(ItemsControl.AlternationIndex), RelativeSource={RelativeSource Mode=TemplatedParent}}"
+                                        Foreground="Red"
+                                        FontWeight="Bold"
+                                        FontSize="20"
+                                        Margin="0,-6,0,0"
+                                        HorizontalAlignment="Left"
+                                        VerticalAlignment="Top"/>
                                     <local:PropertiyView DataContext="{Binding}" 
+                                                         Grid.Column="1"
                                                          AddCommand="{Binding AddCommand,RelativeSource={RelativeSource AncestorType=UserControl, Mode=FindAncestor}}" 
                                                          SetObjectCommand="{Binding SetObjectCommand,RelativeSource={RelativeSource AncestorType=UserControl, Mode=FindAncestor}}" Padding="0,0,10,0">
-                                        <local:PropertiyView.Width>
+                                        <local:PropertiyView.MinWidth>
                                             <MultiBinding Converter="{StaticResource WidthConverter}">
                                                 <Binding Path="."/>
                                                 <Binding Path="ActualWidth" RelativeSource="{RelativeSource FindAncestor, AncestorType={x:Type ItemsControl}}"/>
 
                                             </MultiBinding>
-                                        </local:PropertiyView.Width>
+                                        </local:PropertiyView.MinWidth>
                                     </local:PropertiyView>
-                                    <Button Content="-" 
-                                            Style="{StaticResource ButtonCustom}"
-                                            Command="{Binding RemoveCommand,ElementName=page}" 
-                                            CommandParameter="{Binding .}"
-                                            ToolTip="{Binding Path=(ItemsControl.AlternationIndex), RelativeSource={RelativeSource Mode=TemplatedParent}}"
-                                            Foreground="Red"
-                                            FontWeight="Bold"
-                                            FontSize="20"
-                                            Margin="0,-10,0,0"
-                                            HorizontalAlignment="Right"
-                                            VerticalAlignment="Top"/>
+                               
                                 </Grid>
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
