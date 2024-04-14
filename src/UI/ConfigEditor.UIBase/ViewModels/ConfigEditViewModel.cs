@@ -10,6 +10,7 @@ using System.Reactive.Linq;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Text.RegularExpressions;
+using TextCopy;
 using Ty.Services;
 using Ty.ViewModels;
 
@@ -27,6 +28,8 @@ public class ConfigEditViewModel : ViewModelBase
         AddPropertyCommand = ReactiveCommand.Create<ConfigViewModel>(AddProperty);
         AddArrayCommand = ReactiveCommand.Create<ConfigViewModel>(AddArray);
         SetObjectCommand = ReactiveCommand.Create<ConfigViewModel>(SetObject);
+        CopyCommand = ReactiveCommand.Create<ConfigViewModel>(Copy);
+        PasteCommand = ReactiveCommand.Create<ConfigViewModel>(Paste);
     }
 
 
@@ -570,6 +573,41 @@ public class ConfigEditViewModel : ViewModelBase
             configViewModel.Properties.Add(configViewModel1);
         }
 
+    }
+
+    //CopyCommand
+    public ReactiveCommand<ConfigViewModel, Unit> CopyCommand { get; }
+    public void Copy(ConfigViewModel configViewModel)
+    {
+        //将 configViewModel转换为 json，并复制到剪贴板
+        var json = SetJsonNode(configViewModel).ToJsonString();
+        Clipboard clipboard = new();
+        clipboard.SetText(json);
+    }
+
+    //PasteCommand
+    public ReactiveCommand<ConfigViewModel, Unit> PasteCommand { get; }
+    public void Paste(ConfigViewModel configViewModel)
+    {
+        //从剪贴板读取 json，并转换为 configViewModel
+        Clipboard clipboard = new();
+        var json = clipboard.GetText();
+        if (string.IsNullOrEmpty(json))
+        {
+            return;
+        }
+        var jsonNode = JsonNode.Parse(json);
+        if (jsonNode is JsonObject jsonObj)
+        {
+            foreach (var item in jsonObj)
+            {
+                var property = configViewModel.Properties.FirstOrDefault(c => c.Name == item.Key);
+                if (property is not null)
+                {
+                    property.Value = item.Value.ToJsonString();
+                }
+            }
+        }
     }
 }
 

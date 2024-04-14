@@ -42,7 +42,12 @@
                             </ItemsControl.ItemsPanel>
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
-                                    <c:PropertiyView   AddCommand="{Binding DataContext.AddArrayCommand,RelativeSource={RelativeSource AncestorType=TabControl, Mode=FindAncestor}}" SetObjectCommand="{Binding DataContext.SetObjectCommand,RelativeSource={RelativeSource AncestorType=TabControl, Mode=FindAncestor}}" Margin="2,0">
+                                    <c:PropertiyView   
+                                        AddCommand="{Binding DataContext.AddArrayCommand,RelativeSource={RelativeSource AncestorType=TabControl, Mode=FindAncestor}}"
+                                        SetObjectCommand="{Binding DataContext.SetObjectCommand,RelativeSource={RelativeSource AncestorType=TabControl, Mode=FindAncestor}}"
+                                        CopyCommand="{Binding DataContext.CopyCommand,RelativeSource={RelativeSource AncestorType=TabControl, Mode=FindAncestor}}"
+                                        PasteCommand="{Binding DataContext.PasteCommand,RelativeSource={RelativeSource AncestorType=TabControl, Mode=FindAncestor}}"
+                                        Margin="2,0">
                                         <c:PropertiyView.MinWidth>
                                             <MultiBinding Converter="{StaticResource WidthConverter}">
                                                 <Binding Path="."/>

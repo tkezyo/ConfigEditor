@@ -42,9 +42,48 @@ namespace ConfigEditor.Controls
                 config.Properties.Remove(configViewModel);
             }
         }
+
+        //UpCommand
+        public ReactiveCommand<ConfigViewModel, Unit> UpCommand { get; }
+        public void Up(ConfigViewModel configViewModel)
+        {
+            if (DataContext is ConfigViewModel config)
+            {
+                config.Properties.Move(config.Properties.IndexOf(configViewModel), config.Properties.IndexOf(configViewModel) - 1);
+            }
+        }
+
+        //DownCommand
+        public ReactiveCommand<ConfigViewModel, Unit> DownCommand { get; }
+        public void Down(ConfigViewModel configViewModel)
+        {
+            if (DataContext is ConfigViewModel config)
+            {
+                config.Properties.Move(config.Properties.IndexOf(configViewModel), config.Properties.IndexOf(configViewModel) + 1);
+            }
+        }
+
+        //CopyCommand
+        public static readonly DependencyProperty CopyCommandProperty = DependencyProperty.Register("CopyCommand", typeof(ICommand), typeof(PropertiyView));
+        public ICommand CopyCommand
+        {
+            get { return (ICommand)GetValue(CopyCommandProperty); }
+            set { SetValue(CopyCommandProperty, value); }
+        }
+
+        //PasteCommand
+        public static readonly DependencyProperty PasteCommandProperty = DependencyProperty.Register("PasteCommand", typeof(ICommand), typeof(PropertiyView));
+        public ICommand PasteCommand
+        {
+            get { return (ICommand)GetValue(PasteCommandProperty); }
+            set { SetValue(PasteCommandProperty, value); }
+        }
+
         public PropertiyView()
         {
             RemoveCommand = ReactiveCommand.Create<ConfigViewModel>(Remove);
+            UpCommand = ReactiveCommand.Create<ConfigViewModel>(Up);
+            DownCommand = ReactiveCommand.Create<ConfigViewModel>(Down);
             InitializeComponent();
         }
     }
