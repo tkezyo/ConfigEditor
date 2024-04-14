@@ -49,7 +49,14 @@ namespace ConfigEditor.Controls
         {
             if (DataContext is ConfigViewModel config)
             {
-                config.Properties.Move(config.Properties.IndexOf(configViewModel), config.Properties.IndexOf(configViewModel) - 1);
+                //如果是第一个则不处理
+                var index = config.Properties.IndexOf(configViewModel);
+                if (index == 0)
+                {
+                    return;
+                }
+
+                config.Properties.Move(index, index - 1);
             }
         }
 
@@ -59,7 +66,14 @@ namespace ConfigEditor.Controls
         {
             if (DataContext is ConfigViewModel config)
             {
-                config.Properties.Move(config.Properties.IndexOf(configViewModel), config.Properties.IndexOf(configViewModel) + 1);
+                //如果是第一个则不处理
+                var index = config.Properties.IndexOf(configViewModel);
+                if (index == 0)
+                {
+                    return;
+                }
+
+                config.Properties.Move(index, index + 1);
             }
         }
 

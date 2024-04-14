@@ -596,17 +596,148 @@ public class ConfigEditViewModel : ViewModelBase
         {
             return;
         }
-        var jsonNode = JsonNode.Parse(json);
-        if (jsonNode is JsonObject jsonObj)
+        if (configViewModel.Type == ConfigModelType.Object)
         {
-            foreach (var item in jsonObj)
+            //如果是对象，需要转换为JsonObject,然后递归设置
+            var jsonObj = JsonSerializer.Deserialize<JsonObject>(json);
+
+            var property = _configModels?.FirstOrDefault(c => c.TypeName == configViewModel.SubTypeName);
+
+            if (property is null)
             {
-                var property = configViewModel.Properties.FirstOrDefault(c => c.Name == item.Key);
-                if (property is not null)
+                return;
+            }
+
+            configViewModel.Properties.Clear();
+            foreach (var item in property.PropertyModels)
+            {
+                SetConfigViewModel(item, jsonObj, _configModels, configViewModel.Properties);
+            }
+        }
+        else if (configViewModel.Type == ConfigModelType.Array)
+        {
+            //如果是数组，需要转换为JsonArray,然后递归设置
+            var array = JsonSerializer.Deserialize<JsonArray>(json);
+            ConfigViewModel? Create(JsonNode jsonNode, int dim)
+            {
+                if (dim >= 1)
                 {
-                    property.Value = item.Value.ToJsonString();
+                    if (jsonNode is JsonArray jsonArray)
+                    {
+                        var subConfigViewModel = new ConfigViewModel(configViewModel.SubTypeName ?? "")
+                        {
+                            Type = configViewModel.Type,
+                            SubType = configViewModel.SubType,
+                            SubTypeName = configViewModel.SubTypeName,
+                            Dim = dim,
+                            DisplayName = configViewModel.DisplayName ?? configViewModel.Name,
+                            GroupName = configViewModel.GroupName,
+                            Description = configViewModel.Description,
+                            Prompt = configViewModel.Prompt,
+                            Minimum = configViewModel.Minimum,
+                            Maximum = configViewModel.Maximum,
+                            AllowedValues = configViewModel.AllowedValues is not null ? new ObservableCollection<string>(configViewModel.AllowedValues) : null,
+                            DeniedValues = configViewModel.DeniedValues is not null ? new ObservableCollection<string>(configViewModel.DeniedValues) : null,
+                            Options = new ObservableCollection<KeyValuePair<string, string>>(configViewModel.Options ?? []),
+                            Required = configViewModel.Required ,
+                            RegularExpression = configViewModel.RegularExpression,
+                            AllowedValuesErrorMessage = configViewModel.AllowedValuesErrorMessage,
+                            DeniedValuesErrorMessage = configViewModel.DeniedValuesErrorMessage,
+                            RegularExpressionErrorMessage = configViewModel.RegularExpressionErrorMessage,
+                            RequiredErrorMessage = configViewModel.RequiredErrorMessage,
+                            RangeErrorMessage = configViewModel.RangeErrorMessage,
+                            LengthErrorMessage = configViewModel.LengthErrorMessage,
+                        };
+                        subConfigViewModel.SetValidationRule();
+
+                        foreach (var item in jsonArray)
+                        {
+                            if (item is null)
+                            {
+                                continue;
+                            }
+                            var result = Create(item, dim - 1);
+                            if (result is not null)
+                            {
+                                subConfigViewModel.Properties.Add(result);
+                            }
+                        }
+                        return subConfigViewModel;
+                    }
+                }
+                else
+                {
+                    var subConfigViewModel = new ConfigViewModel(configViewModel.SubTypeName ?? "")
+                    {
+                        Type = configViewModel.SubType ?? ConfigModelType.Object,
+                        DisplayName = configViewModel.DisplayName ?? configViewModel.Name,
+                        GroupName = configViewModel.GroupName,
+                        Description = configViewModel.Description,
+                        Prompt = configViewModel.Prompt,
+                        Minimum = configViewModel.Minimum,
+                        Maximum = configViewModel.Maximum ,
+                        AllowedValues = configViewModel.AllowedValues is not null ? new ObservableCollection<string>(configViewModel.AllowedValues) : null,
+                        DeniedValues = configViewModel.DeniedValues is not null ? new ObservableCollection<string>(configViewModel.DeniedValues) : null,
+                        Options = new ObservableCollection<KeyValuePair<string, string>>(configViewModel.Options ?? []),
+                        Required = configViewModel.Required ,
+                        RegularExpression = configViewModel.RegularExpression,
+                        AllowedValuesErrorMessage = configViewModel.AllowedValuesErrorMessage,
+                        DeniedValuesErrorMessage = configViewModel.DeniedValuesErrorMessage,
+                        RegularExpressionErrorMessage = configViewModel.RegularExpressionErrorMessage,
+                        RequiredErrorMessage = configViewModel.RequiredErrorMessage,
+                        RangeErrorMessage = configViewModel.RangeErrorMessage,
+                        LengthErrorMessage = configViewModel.LengthErrorMessage,
+
+                    };
+                    subConfigViewModel.SetValidationRule();
+
+                    if (configViewModel.SubType == ConfigModelType.Object)
+                    {
+                        var sub = _configModels?.FirstOrDefault(c => !c.MainType && c.TypeName == configViewModel.SubTypeName);
+                        if (sub is not null)
+                        {
+                            subConfigViewModel.Value = "create";
+                            foreach (var item1 in sub.PropertyModels)
+                            {
+                                SetConfigViewModel(item1, jsonNode as JsonObject, _configModels, subConfigViewModel.Properties);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        subConfigViewModel.Value = jsonNode.ToJsonString();
+                    }
+
+                    return subConfigViewModel;
+                }
+                return null;
+            }
+
+            if (array is null)
+            {
+                return;
+            }
+
+            configViewModel.Properties.Clear();
+
+
+            foreach (var item in array)
+            {
+                if (item is null)
+                {
+                    continue;
+                }
+                var result = Create(item, (configViewModel.Dim ?? 0) - 1);
+                if (result is not null)
+                {
+                    configViewModel.Properties.Add(result);
                 }
             }
+
+        }
+        else
+        {
+            configViewModel.Value = json;
         }
     }
 }
