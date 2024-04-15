@@ -24,7 +24,7 @@ public class ConfigEditViewModel : ViewModelBase
     {
         this._messageBoxManager = messageBoxManager;
         LoadConfigCommand = ReactiveCommand.CreateFromTask(LoadConfig);
-        SaveConfigCommand = ReactiveCommand.CreateFromTask(SaveConfig, this.ValidationContext.Valid);
+        SaveConfigCommand = ReactiveCommand.CreateFromTask(SaveConfig);
         AddPropertyCommand = ReactiveCommand.Create<ConfigViewModel>(AddProperty);
         AddArrayCommand = ReactiveCommand.Create<ConfigViewModel>(AddArray);
         SetObjectCommand = ReactiveCommand.Create<ConfigViewModel>(SetObject);
@@ -84,7 +84,6 @@ public class ConfigEditViewModel : ViewModelBase
                     SetConfigViewModel(property, config, definition, configInfoViewModel.Configs);
                 }
             }
-            ConfigInfo.Add(configInfoViewModel);
 
             //订阅所有属性的ValidationContext，当有属性的ValidationContext发生变化时，重新计算HasErrors
             this.ConfigInfo.ToObservableChangeSet().ActOnEveryObject(c =>
@@ -94,6 +93,7 @@ public class ConfigEditViewModel : ViewModelBase
             {
                 this.ValidationContext.Remove(c.ValidationContext);
             });
+            ConfigInfo.Add(configInfoViewModel);
         }
     }
 
@@ -194,10 +194,6 @@ public class ConfigEditViewModel : ViewModelBase
             {
                 throw new Exception($"{config.Name}的值不是时间");
             }
-            else
-            {
-                return (JsonNode)(time.ToLongTimeString());
-            }
         }
         else if (config.Type == ConfigModelType.String)
         {
@@ -217,6 +213,10 @@ public class ConfigEditViewModel : ViewModelBase
 
         if (config.Type == ConfigModelType.Object)
         {
+            if (string.IsNullOrEmpty(config.Value))
+            {
+                return JsonNode.Parse("null")!;
+            }
             JsonObject jsonObj = new JsonObject();
             foreach (var item in config.Properties)
             {
@@ -262,7 +262,7 @@ public class ConfigEditViewModel : ViewModelBase
         else if (config.Type == ConfigModelType.TimeOnly && !string.IsNullOrEmpty(config.Value))
         {
             //config.value的格式为 4/2/2024 10:19:02 PM 需要转换为 json的格式
-            return (JsonNode)DateTime.Parse(config.Value.Split(' ')[1] ?? string.Empty).ToString("HH:mm:ss");
+            return (JsonNode)DateTime.Parse(config.Value).ToString("HH:mm:ss");
         }
         else
         {
@@ -435,7 +435,21 @@ public class ConfigEditViewModel : ViewModelBase
             }
             else if (config[propertyModel.Name] is not null)
             {
-                configViewModelProperty.Value = config[propertyModel.Name]?.ToString();
+                if (propertyModel.Type == ConfigModelType.String)
+                {
+                    if (config[propertyModel.Name]?.ToString() != "\u0000")
+                    {
+                        configViewModelProperty.Value = config[propertyModel.Name]?.ToString();
+                    }
+                    else
+                    {
+                        configViewModelProperty.Value = "0";
+                    }
+                }
+                else
+                {
+                    configViewModelProperty.Value = config[propertyModel.Name]?.ToString();
+                }
             }
         }
         configViewModel.Add(configViewModelProperty);
@@ -582,7 +596,8 @@ public class ConfigEditViewModel : ViewModelBase
         //将 configViewModel转换为 json，并复制到剪贴板
         var json = SetJsonNode(configViewModel).ToJsonString();
         Clipboard clipboard = new();
-        clipboard.SetText(json);
+
+        clipboard.SetText(configViewModel.ToString() + "|" + json);
     }
 
     //PasteCommand
@@ -596,6 +611,22 @@ public class ConfigEditViewModel : ViewModelBase
         {
             return;
         }
+
+        var index = json.IndexOf('|');
+        if (index == -1)
+        {
+            return;
+        }
+
+        if (!json.StartsWith(configViewModel.ToString() + "|"))
+        {
+            return;
+        }
+
+        json = json[(index + 1)..];
+
+
+
         if (configViewModel.Type == ConfigModelType.Object)
         {
             //如果是对象，需要转换为JsonObject,然后递归设置
@@ -639,7 +670,7 @@ public class ConfigEditViewModel : ViewModelBase
                             AllowedValues = configViewModel.AllowedValues is not null ? new ObservableCollection<string>(configViewModel.AllowedValues) : null,
                             DeniedValues = configViewModel.DeniedValues is not null ? new ObservableCollection<string>(configViewModel.DeniedValues) : null,
                             Options = new ObservableCollection<KeyValuePair<string, string>>(configViewModel.Options ?? []),
-                            Required = configViewModel.Required ,
+                            Required = configViewModel.Required,
                             RegularExpression = configViewModel.RegularExpression,
                             AllowedValuesErrorMessage = configViewModel.AllowedValuesErrorMessage,
                             DeniedValuesErrorMessage = configViewModel.DeniedValuesErrorMessage,
@@ -675,11 +706,11 @@ public class ConfigEditViewModel : ViewModelBase
                         Description = configViewModel.Description,
                         Prompt = configViewModel.Prompt,
                         Minimum = configViewModel.Minimum,
-                        Maximum = configViewModel.Maximum ,
+                        Maximum = configViewModel.Maximum,
                         AllowedValues = configViewModel.AllowedValues is not null ? new ObservableCollection<string>(configViewModel.AllowedValues) : null,
                         DeniedValues = configViewModel.DeniedValues is not null ? new ObservableCollection<string>(configViewModel.DeniedValues) : null,
                         Options = new ObservableCollection<KeyValuePair<string, string>>(configViewModel.Options ?? []),
-                        Required = configViewModel.Required ,
+                        Required = configViewModel.Required,
                         RegularExpression = configViewModel.RegularExpression,
                         AllowedValuesErrorMessage = configViewModel.AllowedValuesErrorMessage,
                         DeniedValuesErrorMessage = configViewModel.DeniedValuesErrorMessage,
@@ -734,6 +765,10 @@ public class ConfigEditViewModel : ViewModelBase
                 }
             }
 
+        }
+        else if (configViewModel.Type== ConfigModelType.String)
+        {
+            configViewModel.Value = json.Trim('"');
         }
         else
         {
@@ -962,6 +997,11 @@ public class ConfigViewModel : ReactiveValidationObject
                   }
                   return true;
               }, LengthErrorMessage ?? "长度错误");
+    }
+
+    public override string? ToString()
+    {
+        return $"{Type}:{SubType}:{SubTypeName}:{Dim}";
     }
 
     [Reactive]

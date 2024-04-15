@@ -356,7 +356,7 @@
                 </StackPanel>
                 <Border BorderBrush="Gray" BorderThickness="1,0,0,0" Padding="4">
                     <StackPanel>
-                        <Button Visibility="{Binding Value,Converter={StaticResource String2VisibilityReConverter}}" Content="创建" Command="{Binding SetObjectCommand,ElementName=page}" CommandParameter="{Binding .}"/>
+                        <Button Visibility="{Binding Value,Converter={StaticResource String2VisibilityReConverter}}" Content="创建" Command="{Binding SetObjectCommand,ElementName=page}" CommandParameter="{Binding .}" HorizontalAlignment="Left"/>
                         <ItemsControl ItemsSource="{Binding Properties}" Visibility="{Binding Value,Converter={StaticResource String2VisibilityConverter}}">
                             <ItemsControl.ItemsPanel>
                                 <ItemsPanelTemplate>

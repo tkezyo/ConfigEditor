@@ -40,7 +40,7 @@ public class PropertyModel(string name)
     public string? RequiredErrorMessage { get; set; }
     public string? RangeErrorMessage { get; set; }
 
-
+  
     public List<KeyValuePair<string, string>>? Options { get; set; }
 }
 
@@ -49,7 +49,6 @@ public enum ConfigModelType
     String,
     Number,
     Boolean,
-    TimeSpan,
     DateTime,
     DateOnly,
     TimeOnly,

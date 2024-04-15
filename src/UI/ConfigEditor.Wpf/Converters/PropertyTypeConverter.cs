@@ -10,7 +10,6 @@ namespace ConfigEditor.Converters
         public DataTemplate? StringTemplate { get; set; }
         public DataTemplate? NumberTemplate { get; set; }
         public DataTemplate? BooleanTemplate { get; set; }
-        public DataTemplate? TimeSpanTemplate { get; set; }
         public DataTemplate? DateTimeTemplate { get; set; }
         public DataTemplate? DateOnlyTemplate { get; set; }
         public DataTemplate? TimeOnlyTemplate { get; set; }
@@ -46,10 +45,6 @@ namespace ConfigEditor.Converters
             if (obj.Type == ConfigModelType.Boolean)
             {
                 return BooleanTemplate;
-            }
-            if (obj.Type == ConfigModelType.TimeSpan)
-            {
-                return TimeSpanTemplate;
             }
             if (obj.Type == ConfigModelType.DateTime)
             {

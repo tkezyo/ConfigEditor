@@ -37,6 +37,7 @@ public class DemoConfig
     public DateTime DateTime { get; set; }
     public DateOnly DateOnly { get; set; }
     public TimeOnly TimeOnly { get; set; }
+    public TimeSpan TimeSpan { get; set; }
     public DemoEnum Enum { get; set; }
     public Demo2? Demo2 { get; set; }
     public List<Demo2> Demo2s { get; set; } = [];

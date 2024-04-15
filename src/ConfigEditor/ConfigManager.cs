@@ -161,10 +161,10 @@ namespace ConfigEditor
                     configModel.SubType = subType switch
                     {
                         Type t when t == typeof(string) => ConfigModelType.String,
+                        Type t when t == typeof(TimeSpan) => ConfigModelType.String,
                         Type t when t == typeof(int) || t == typeof(double) || t == typeof(float) || t == typeof(decimal) || t == typeof(long) || t == typeof(ulong) || t == typeof(uint) || t == typeof(short) || t == typeof(ushort) || t == typeof(byte) || t == typeof(sbyte) || t == typeof(char) => ConfigModelType.Number,
                         Type t when t == typeof(bool) => ConfigModelType.Boolean,
                         Type t when t == typeof(DateTime) => ConfigModelType.DateTime,
-                        Type t when t == typeof(TimeSpan) => ConfigModelType.TimeSpan,
                         Type t when t == typeof(DateOnly) => ConfigModelType.DateOnly,
                         Type t when t == typeof(TimeOnly) => ConfigModelType.TimeOnly,
                         Type t when t.IsEnum => ConfigModelType.Number,
@@ -174,7 +174,7 @@ namespace ConfigEditor
                     {
                         if (type.IsArray)
                         {
-                            return GetDim(type.GetElementType()) + 1;
+                            return GetDim(type.GetElementType()!) + 1;
                         }
                         else if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(List<>))
                         {
@@ -187,16 +187,21 @@ namespace ConfigEditor
                     }
                     Type GetSubType(Type type)
                     {
+                        var elementType = type.GetElementType();
+                        if (elementType is null)
+                        {
+                            elementType = type.GetGenericArguments()[0];
+                        }
                         if (type.IsArray)
                         {
                             //如果多个数组嵌套
-                            if (type.GetElementType().IsArray)
+                            if (elementType.IsArray)
                             {
-                                return GetSubType(type.GetElementType());
+                                return GetSubType(elementType);
                             }
                             else
                             {
-                                return type.GetElementType();
+                                return elementType;
                             }
                         }
                         else if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(List<>))
@@ -234,7 +239,10 @@ namespace ConfigEditor
                 //如果是TimeSpan
                 else if (property.PropertyType == typeof(TimeSpan))
                 {
-                    configModel.Type = ConfigModelType.TimeSpan;
+                    configModel.Type = ConfigModelType.String;
+                    //设置正则表达式,格式为10675199.02:48:05.4775807
+                    configModel.RegularExpression = @"^(-)?((\d+\.(\d+))|(\d+)):(\d+):(\d+)(\.(\d+))?$";
+                    configModel.RegularExpressionErrorMessage = "时间格式不正确(天.时:分:秒.毫秒)";
                 }
                 //如果是DateOnly
                 else if (property.PropertyType == typeof(DateOnly))
