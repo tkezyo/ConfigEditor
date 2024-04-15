@@ -21,7 +21,7 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
         <StackPanel Orientation="Horizontal">
-            <Button Content="打开" Command="{Binding LoadConfigCommand}"/>
+            <Button Content="打开" Command="{Binding LoadConfigCommand}" Visibility="{Binding Cli,Converter={StaticResource Boolean2VisibilityReConverter}}"/>
             <Button Content="保存" Command="{Binding SaveConfigCommand}"/>
         </StackPanel>
 

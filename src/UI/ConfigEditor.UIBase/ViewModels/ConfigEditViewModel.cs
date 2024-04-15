@@ -37,6 +37,18 @@ public class ConfigEditViewModel : ViewModelBase
     public ObservableCollection<ConfigInfoViewModel> ConfigInfo { get; set; } = [];
     public ReactiveCommand<Unit, Unit> LoadConfigCommand { get; }
     private List<ConfigModel>? _configModels;
+
+    [Reactive]
+    public bool Cli { get; set; }
+    public override async Task Activate()
+    {
+        if (Environment.GetCommandLineArgs().Length > 1)
+        {
+            Cli = true;
+            await LoadConfig();
+        }
+    }
+
     //读取 definition.json
     public async Task LoadConfig()
     {

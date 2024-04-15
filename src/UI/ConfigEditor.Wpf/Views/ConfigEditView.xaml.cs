@@ -25,6 +25,7 @@ namespace ConfigEditor.Views
         public ConfigEditView()
         {
             InitializeComponent();
+            this.WhenActivated(d => { });
         }
     }
 }

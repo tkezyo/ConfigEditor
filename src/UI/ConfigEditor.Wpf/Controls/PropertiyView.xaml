@@ -271,48 +271,37 @@
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
                                 <Grid  HorizontalAlignment="Left">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="Auto"/>
-                                    </Grid.ColumnDefinitions>
-                                    <StackPanel Margin="0,-6,0,0">
-                                        <Button Content="-" 
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="*"/>
+                                    </Grid.RowDefinitions>
+                                    <StackPanel Orientation="Horizontal">
+                                        <Button Content=" - " 
                                             Style="{StaticResource ButtonCustom}"
                                             Command="{Binding RemoveCommand,ElementName=page}" 
                                             CommandParameter="{Binding .}"
                                             ToolTip="{Binding Path=(ItemsControl.AlternationIndex), RelativeSource={RelativeSource Mode=TemplatedParent}}"
                                             Foreground="Red"
                                             FontWeight="Bold"
-                                            FontSize="20"
-                                           
-                                            HorizontalAlignment="Left"
-                                            VerticalAlignment="Top"/>
+                                           />
                                         <Button Content="↑" 
                                             Style="{StaticResource ButtonCustom}"
                                             Command="{Binding UpCommand,ElementName=page}" 
                                             CommandParameter="{Binding .}"
                                             ToolTip="{Binding Path=(ItemsControl.AlternationIndex), RelativeSource={RelativeSource Mode=TemplatedParent}}"
                                             Foreground="Blue"
-                                            FontWeight="Bold"
-                                            FontSize="10"
-                                           
-                                            HorizontalAlignment="Left"
-                                            VerticalAlignment="Top"/>
+                                            FontWeight="Bold"/>
                                         <Button Content="↓"
                                             Style="{StaticResource ButtonCustom}"
                                             Command="{Binding DownCommand,ElementName=page}" 
                                             CommandParameter="{Binding .}"
                                             ToolTip="{Binding Path=(ItemsControl.AlternationIndex), RelativeSource={RelativeSource Mode=TemplatedParent}}"
                                             Foreground="Blue"
-                                            FontWeight="Bold"
-                                            FontSize="10"
-                                           
-                                            HorizontalAlignment="Left"
-                                            VerticalAlignment="Top"/>
+                                            FontWeight="Bold"/>
                                     </StackPanel>
 
                                     <local:PropertiyView DataContext="{Binding}" 
-                                                         Grid.Column="1"
+                                                         Grid.Row="1"
                                                          AddCommand="{Binding AddCommand,RelativeSource={RelativeSource AncestorType=UserControl, Mode=FindAncestor}}" 
                                                          SetObjectCommand="{Binding SetObjectCommand,RelativeSource={RelativeSource AncestorType=UserControl, Mode=FindAncestor}}"
                                                          CopyCommand="{Binding CopyCommand,RelativeSource={RelativeSource AncestorType=UserControl, Mode=FindAncestor}}" 
