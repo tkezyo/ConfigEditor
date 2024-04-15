@@ -40,13 +40,20 @@ public class ConfigEditViewModel : ViewModelBase
     //读取 definition.json
     public async Task LoadConfig()
     {
-        var files = await _messageBoxManager.OpenFiles.Handle(new OpenFilesInfo
+        var files = Environment.GetCommandLineArgs();
+        files = files.Skip(1).ToArray();
+        if (files.Length == 0)
         {
-            Filter = "*.json",
-            FilterName = "配置文件",
-            Multiselect = true,
-            Title = "打开配置"
-        });
+            files = await _messageBoxManager.OpenFiles.Handle(new OpenFilesInfo
+            {
+                Filter = "*.json",
+                FilterName = "配置文件",
+                Multiselect = true,
+                Title = "打开配置"
+            });
+        }
+
+
         if (files.Length == 0)
         {
             return;
@@ -58,10 +65,28 @@ public class ConfigEditViewModel : ViewModelBase
             {
                 file = file.Replace("definition.", "");
             }
+            if (!File.Exists(file))
+            {
+                continue;
+            }
+
+            if (ConfigInfo.Any(c => c.FilePath == file))
+            {
+                continue;
+            }
+
+            var definitionFile = file.Replace(".json", ".definition.json");
+
+            if (!File.Exists(definitionFile))
+            {
+                await _messageBoxManager.Alert.Handle(new AlertInfo("definition文件不存在"));
+                return;
+            }
+
             //读取配置文件
             var configStr = await File.ReadAllTextAsync(file);
             //读取定义文件
-            var definitionStr = await File.ReadAllTextAsync(file.Replace(".json", ".definition.json"));
+            var definitionStr = await File.ReadAllTextAsync(definitionFile);
             //解析定义文件
             var definition = JsonSerializer.Deserialize<List<ConfigModel>>(definitionStr);
             _configModels = definition;
@@ -766,7 +791,7 @@ public class ConfigEditViewModel : ViewModelBase
             }
 
         }
-        else if (configViewModel.Type== ConfigModelType.String)
+        else if (configViewModel.Type == ConfigModelType.String)
         {
             configViewModel.Value = json.Trim('"');
         }
