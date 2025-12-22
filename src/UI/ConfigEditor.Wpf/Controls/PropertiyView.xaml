@@ -18,6 +18,39 @@
             <Setter Property="VerticalAlignment" Value="Center"/>
             <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
         </Style>
+        <Style x:Key="ButtonActionStyle" TargetType="Button" BasedOn="{StaticResource ButtonCustom}">
+            <Setter Property="Width" Value="28"/>
+            <Setter Property="Height" Value="28"/>
+            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderBrush" Value="#D0D0D0"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="HorizontalAlignment" Value="Center"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Foreground" Value="#1976D2"/>
+            <Setter Property="ToolTipService.ShowDuration" Value="3000"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#E3F2FD"/>
+                    <Setter Property="BorderBrush" Value="#1976D2"/>
+                    <Setter Property="Foreground" Value="#0D47A1"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+        <Style x:Key="ButtonDeleteStyle" TargetType="Button" BasedOn="{StaticResource ButtonActionStyle}">
+            <Setter Property="Foreground" Value="#D32F2F"/>
+            <Setter Property="BorderBrush" Value="#D32F2F"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#FFEBEE"/>
+                    <Setter Property="BorderBrush" Value="#B71C1C"/>
+                    <Setter Property="Foreground" Value="#B71C1C"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+ 
+
         <converters:PropertyWidthConverter x:Key="WidthConverter"/>
         <converters:TimeOnlyConverter x:Key="TimeOnlyConverter"></converters:TimeOnlyConverter>
         <converters:StringBoolConverter x:Key="StringBoolConverter"></converters:StringBoolConverter>
@@ -236,72 +269,38 @@
         </DataTemplate>
         <DataTemplate x:Key="Array" DataType="vms:ConfigViewModel">
             <StackPanel>
-                <StackPanel Orientation="Horizontal">
-                    <StackPanel.Style>
-                        <Style TargetType="StackPanel">
-                            <Style.Triggers>
-                                <Trigger Property="IsMouseOver" Value="True">
-                                    <Setter Property="Tag" Value="Visible"/>
-                                </Trigger>
-                                <Trigger Property="IsMouseOver" Value="False">
-                                    <Setter Property="Tag" Value="Collapsed"/>
-                                </Trigger>
-                            </Style.Triggers>
-                        </Style>
-                    </StackPanel.Style>
-                    
-                    <TextBlock Text="{Binding DisplayName}"  Style="{StaticResource tb}" />
-                    <TextBlock Text="{Binding Dim,StringFormat={}[{0}]}"  Style="{StaticResource tb}" />
-                    <Button Content="复制" Command="{Binding CopyCommand,ElementName=page}" CommandParameter="{Binding .}" Style="{StaticResource ButtonCustom}" Visibility="{Binding Tag, RelativeSource={RelativeSource AncestorType=StackPanel}}"/>
-                    <Button Content="粘贴" Command="{Binding PasteCommand,ElementName=page}" CommandParameter="{Binding .}" Style="{StaticResource ButtonCustom}" Visibility="{Binding Tag, RelativeSource={RelativeSource AncestorType=StackPanel}}"/>
-                    <Button Content="+" Command="{Binding AddCommand,ElementName=page}" CommandParameter="{Binding .}"  Style="{StaticResource ButtonCustom}" Foreground="Blue" FontWeight="Bold"
-                            Visibility="{Binding Tag, RelativeSource={RelativeSource AncestorType=StackPanel}}"
-                            />
-                </StackPanel>
-
-                <Border BorderBrush="Gray"
-                        BorderThickness="1,0,0,0" Padding="6" ToolTip="{Binding DisplayName}">
-
-                    <ItemsControl ItemsSource="{Binding Properties}" AlternationCount="{Binding Properties.Count}" >
-                        <ItemsControl.ItemsPanel>
-                            <ItemsPanelTemplate>
-                                <WrapPanel/>
-                            </ItemsPanelTemplate>
-                        </ItemsControl.ItemsPanel>
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate>
-                                <Grid  HorizontalAlignment="Left">
+                <DockPanel Margin="0,0,0,8">
+                    <TextBlock Text="{Binding DisplayName}" Style="{StaticResource tb}" FontWeight="Bold" FontSize="14" DockPanel.Dock="Left" VerticalAlignment="Center" />
+                    <TextBlock Text="{Binding Dim,StringFormat={}[{0}]}" Style="{StaticResource tb}" Margin="6,0,0,0" DockPanel.Dock="Left" VerticalAlignment="Center" />
+                    <StackPanel Orientation="Horizontal" DockPanel.Dock="Right" VerticalAlignment="Center" Margin="8,0,0,0">
+                        <Button ToolTip="复制" Content="📋" Command="{Binding CopyCommand,ElementName=page}" CommandParameter="{Binding .}" Style="{StaticResource ButtonCustom}" Visibility="{Binding Tag, RelativeSource={RelativeSource AncestorType=StackPanel}}" Margin="0,0,4,0"/>
+                        <Button ToolTip="粘贴" Content="📑" Command="{Binding PasteCommand,ElementName=page}" CommandParameter="{Binding .}" Style="{StaticResource ButtonCustom}" Visibility="{Binding Tag, RelativeSource={RelativeSource AncestorType=StackPanel}}" Margin="0,0,4,0"/>
+                        <Button ToolTip="新增" Content="＋" Command="{Binding AddCommand,ElementName=page}" CommandParameter="{Binding .}" Style="{StaticResource ButtonCustom}" Foreground="Blue" FontWeight="Bold" Margin="0,0,4,0"/>
+                    </StackPanel>
+                </DockPanel>
+                <ItemsControl ItemsSource="{Binding Properties}" AlternationCount="{Binding Properties.Count}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <WrapPanel/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Border CornerRadius="8" BorderBrush="#D0D0D0" BorderThickness="1" Margin="6" Padding="10" Background="#FAFAFA" Effect="{DynamicResource ShadowEffect}">
+                                <Grid>
                                     <Grid.RowDefinitions>
                                         <RowDefinition Height="Auto"/>
                                         <RowDefinition Height="*"/>
                                     </Grid.RowDefinitions>
-                                    <StackPanel Orientation="Horizontal">
-                                        <Button Content=" - " 
-                                            Style="{StaticResource ButtonCustom}"
-                                            Command="{Binding RemoveCommand,ElementName=page}" 
-                                            CommandParameter="{Binding .}"
-                                            ToolTip="{Binding Path=(ItemsControl.AlternationIndex), RelativeSource={RelativeSource Mode=TemplatedParent}}"
-                                            Foreground="Red"
-                                            FontWeight="Bold"
-                                           />
-                                        <Button Content="↑" 
-                                            Style="{StaticResource ButtonCustom}"
-                                            Command="{Binding UpCommand,ElementName=page}" 
-                                            CommandParameter="{Binding .}"
-                                            ToolTip="{Binding Path=(ItemsControl.AlternationIndex), RelativeSource={RelativeSource Mode=TemplatedParent}}"
-                                            Foreground="Blue"
-                                            FontWeight="Bold"/>
-                                        <Button Content="↓"
-                                            Style="{StaticResource ButtonCustom}"
-                                            Command="{Binding DownCommand,ElementName=page}" 
-                                            CommandParameter="{Binding .}"
-                                            ToolTip="{Binding Path=(ItemsControl.AlternationIndex), RelativeSource={RelativeSource Mode=TemplatedParent}}"
-                                            Foreground="Blue"
-                                            FontWeight="Bold"/>
-                                    </StackPanel>
-
-                                    <local:PropertiyView DataContext="{Binding}" 
-                                                         Grid.Row="1"
+                                    <DockPanel Grid.Row="0" VerticalAlignment="Top">
+                                        <TextBlock Text="元素 {Binding Path=(ItemsControl.AlternationIndex), RelativeSource={RelativeSource Mode=TemplatedParent}, Converter={StaticResource ObjStringConverter}}" FontWeight="Bold" Margin="0,0,8,0" DockPanel.Dock="Left"/>
+                                        <StackPanel Orientation="Horizontal" DockPanel.Dock="Right">
+                                            <Button ToolTip="删除" Content="－" Style="{StaticResource ButtonDeleteStyle}" Command="{Binding RemoveCommand,ElementName=page}" CommandParameter="{Binding .}" Margin="0,0,8,0" Visibility="{Binding Tag, RelativeSource={RelativeSource AncestorType=StackPanel}}"/>
+                                            <Button ToolTip="上移" Content="↑" Style="{StaticResource ButtonActionStyle}" Command="{Binding UpCommand,ElementName=page}" CommandParameter="{Binding .}" Margin="0,0,8,0"/>
+                                            <Button ToolTip="下移" Content="↓" Style="{StaticResource ButtonActionStyle}" Command="{Binding DownCommand,ElementName=page}" CommandParameter="{Binding .}"/>
+                                        </StackPanel>
+                                    </DockPanel>
+                                    <local:PropertiyView DataContext="{Binding}" Grid.Row="1"
                                                          AddCommand="{Binding AddCommand,RelativeSource={RelativeSource AncestorType=UserControl, Mode=FindAncestor}}" 
                                                          SetObjectCommand="{Binding SetObjectCommand,RelativeSource={RelativeSource AncestorType=UserControl, Mode=FindAncestor}}"
                                                          CopyCommand="{Binding CopyCommand,RelativeSource={RelativeSource AncestorType=UserControl, Mode=FindAncestor}}" 
@@ -311,21 +310,19 @@
                                             <MultiBinding Converter="{StaticResource WidthConverter}">
                                                 <Binding Path="."/>
                                                 <Binding Path="ActualWidth" RelativeSource="{RelativeSource FindAncestor, AncestorType={x:Type ItemsControl}}"/>
-
                                             </MultiBinding>
                                         </local:PropertiyView.MinWidth>
                                     </local:PropertiyView>
-
                                 </Grid>
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
-                </Border>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
             </StackPanel>
         </DataTemplate>
         <DataTemplate x:Key="Object" DataType="vms:ConfigViewModel">
-            <StackPanel >
-                <StackPanel Orientation="Horizontal">
+            <StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
                     <StackPanel.Style>
                         <Style TargetType="StackPanel">
                             <Style.Triggers>
@@ -338,14 +335,13 @@
                             </Style.Triggers>
                         </Style>
                     </StackPanel.Style>
-
-                    <TextBlock Text="{Binding DisplayName}" Style="{StaticResource tb}" />
+                    <TextBlock Text="{Binding DisplayName}" Style="{StaticResource tb}" FontWeight="Bold" FontSize="14" />
                     <Button Content="复制" Command="{Binding CopyCommand,ElementName=page}" CommandParameter="{Binding .}" Style="{StaticResource ButtonCustom}" Visibility="{Binding Tag, RelativeSource={RelativeSource AncestorType=StackPanel}}"/>
                     <Button Content="粘贴" Command="{Binding PasteCommand,ElementName=page}" CommandParameter="{Binding .}" Style="{StaticResource ButtonCustom}" Visibility="{Binding Tag, RelativeSource={RelativeSource AncestorType=StackPanel}}"/>
                 </StackPanel>
-                <Border BorderBrush="Gray" BorderThickness="1,0,0,0" Padding="4">
+                <Border BorderBrush="#D0D0D0" BorderThickness="1" CornerRadius="8" Padding="10" Background="#FAFAFA" Effect="{DynamicResource ShadowEffect}">
                     <StackPanel>
-                        <Button Visibility="{Binding Value,Converter={StaticResource String2VisibilityReConverter}}" Content="创建" Command="{Binding SetObjectCommand,ElementName=page}" CommandParameter="{Binding .}" HorizontalAlignment="Left"/>
+                        <Button Visibility="{Binding Value,Converter={StaticResource String2VisibilityReConverter}}" Content="创建" Command="{Binding SetObjectCommand,ElementName=page}" CommandParameter="{Binding .}" HorizontalAlignment="Left" Margin="0,0,0,8"/>
                         <ItemsControl ItemsSource="{Binding Properties}" Visibility="{Binding Value,Converter={StaticResource String2VisibilityConverter}}">
                             <ItemsControl.ItemsPanel>
                                 <ItemsPanelTemplate>
@@ -354,20 +350,21 @@
                             </ItemsControl.ItemsPanel>
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
-                                    <local:PropertiyView DataContext="{Binding}" 
-                                                     AddCommand="{Binding AddCommand,RelativeSource={RelativeSource AncestorType=UserControl, Mode=FindAncestor}}" 
-                                                     SetObjectCommand="{Binding SetObjectCommand,RelativeSource={RelativeSource AncestorType=UserControl, Mode=FindAncestor}}"
-                                                    CopyCommand="{Binding CopyCommand,RelativeSource={RelativeSource AncestorType=UserControl, Mode=FindAncestor}}" 
-                                                    PasteCommand="{Binding PasteCommand,RelativeSource={RelativeSource AncestorType=UserControl, Mode=FindAncestor}}" 
+                                    <Border CornerRadius="6" BorderBrush="#E0E0E0" BorderThickness="1" Margin="4" Padding="8" Background="#FFF">
+                                        <local:PropertiyView DataContext="{Binding}" 
+                                                         AddCommand="{Binding AddCommand,RelativeSource={RelativeSource AncestorType=UserControl, Mode=FindAncestor}}" 
+                                                         SetObjectCommand="{Binding SetObjectCommand,RelativeSource={RelativeSource AncestorType=UserControl, Mode=FindAncestor}}"
+                                                        CopyCommand="{Binding CopyCommand,RelativeSource={RelativeSource AncestorType=UserControl, Mode=FindAncestor}}" 
+                                                        PasteCommand="{Binding PasteCommand,RelativeSource={RelativeSource AncestorType=UserControl, Mode=FindAncestor}}" 
                                                          Margin="2,0">
-                                        <local:PropertiyView.Width>
-                                            <MultiBinding Converter="{StaticResource WidthConverter}">
-                                                <Binding Path="."/>
-                                                <Binding Path="ActualWidth" RelativeSource="{RelativeSource FindAncestor, AncestorType={x:Type ItemsControl}}"/>
-
-                                            </MultiBinding>
-                                        </local:PropertiyView.Width>
-                                    </local:PropertiyView>
+                                            <local:PropertiyView.Width>
+                                                <MultiBinding Converter="{StaticResource WidthConverter}">
+                                                    <Binding Path="."/>
+                                                    <Binding Path="ActualWidth" RelativeSource="{RelativeSource FindAncestor, AncestorType={x:Type ItemsControl}}"/>
+                                                </MultiBinding>
+                                            </local:PropertiyView.Width>
+                                        </local:PropertiyView>
+                                    </Border>
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>
@@ -376,17 +373,16 @@
             </StackPanel>
         </DataTemplate>
         <converters:PropertyTypeConverter x:Key="propertyTypeConverter"
-                                           BooleanTemplate="{StaticResource Bool}"
-                                           StringTemplate="{StaticResource Normal}"
-                                           NumberTemplate="{StaticResource Number}"
-                                           HasOptionTemplate="{StaticResource Enum}"
-                                           DateTimeTemplate="{StaticResource DateTime}"
-                                           TimeOnlyTemplate="{StaticResource Time}"
-                                          DateOnlyTemplate="{StaticResource Date}"
-                                          ArrayTemplate="{StaticResource Array}"
-                                            ObjectTemplate="{StaticResource Object}">
+                                      BooleanTemplate="{StaticResource Bool}"
+                                      StringTemplate="{StaticResource Normal}"
+                                      NumberTemplate="{StaticResource Number}"
+                                      HasOptionTemplate="{StaticResource Enum}"
+                                      DateTimeTemplate="{StaticResource DateTime}"
+                                      TimeOnlyTemplate="{StaticResource Time}"
+                                     DateOnlyTemplate="{StaticResource Date}"
+                                     ArrayTemplate="{StaticResource Array}"
+                                       ObjectTemplate="{StaticResource Object}">
         </converters:PropertyTypeConverter>
-
     </UserControl.Resources>
 
     <ContentControl Content="{Binding .}" ContentTemplateSelector="{StaticResource propertyTypeConverter}" Validation.ErrorTemplate="{x:Null}" ToolTip="{Binding Description}"/>
