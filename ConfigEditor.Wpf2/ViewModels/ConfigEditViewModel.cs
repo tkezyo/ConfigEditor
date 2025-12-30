@@ -55,6 +55,10 @@ namespace ConfigEditor.Wpf2.ViewModels
 
         public async Task LoadConfig()
         {
+            // Clear existing data to force full re-render
+            ConfigInfo.Clear();
+            Configs.Clear();
+
             var dlg = new Microsoft.Win32.OpenFileDialog()
             {
                 Filter = "*.json|*.json",
@@ -542,7 +546,11 @@ namespace ConfigEditor.Wpf2.ViewModels
         public void SetObject(ConfigViewModel configViewModel)
         {
             var sub = _configModels?.Find(c => !c.MainType && c.TypeName == configViewModel.SubTypeName);
-
+            if (configViewModel is null) return;
+            if (configViewModel.Value == "create" || (configViewModel.Properties != null && configViewModel.Properties.Count > 0))
+            {
+                return;
+            }
             configViewModel.Value = "create";
 
             if (sub is not null)

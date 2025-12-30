@@ -585,6 +585,13 @@ public class ConfigEditViewModel : ViewModelBase
     public ReactiveCommand<ConfigViewModel, Unit> SetObjectCommand { get; }
     public void SetObject(ConfigViewModel configViewModel)
     {
+        // If already created (flagged by Value) or already has properties, do not recreate
+        if (configViewModel is null) return;
+        if (configViewModel.Value == "create" || (configViewModel.Properties != null && configViewModel.Properties.Count > 0))
+        {
+            return;
+        }
+
         var sub = _configModels?.FirstOrDefault(c => !c.MainType && c.TypeName == configViewModel.SubTypeName);
 
         configViewModel.Value = "create";
