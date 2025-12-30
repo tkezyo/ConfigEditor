@@ -1,0 +1,240 @@
+[
+  {
+    "TypeName": "DemoConfig",
+    "MainType": true,
+    "PropertyModels": [
+      {
+        "Name": "String",
+        "Order": 0,
+        "Type": 0,
+        "DisplayName": "字符串",
+        "GroupName": "sdfff",
+        "Description": "sdfw",
+        "Prompt": "字符串",
+        "Minimum": 1,
+        "Maximum": 10,
+        "AllowedValues": [
+          "123",
+          "456"
+        ],
+        "Required": true,
+        "AllowedValuesErrorMessage": "The {0} field does not equal any of the values specified in AllowedValuesAttribute."
+      },
+      {
+        "Name": "Int",
+        "Order": 0,
+        "Type": 1,
+        "DisplayName": "数字",
+        "GroupName": "sdfff",
+        "Description": "sdfw",
+        "Prompt": "请输入数字",
+        "Minimum": 1,
+        "Maximum": 10,
+        "DeniedValues": [
+          "1",
+          "2"
+        ],
+        "Required": true,
+        "DeniedValuesErrorMessage": "不允许输入1,2"
+      },
+      {
+        "Name": "Bool",
+        "Type": 2
+      },
+      {
+        "Name": "Double",
+        "Order": 0,
+        "Type": 1,
+        "DisplayName": "数字",
+        "GroupName": "sdfff",
+        "Description": "sdfw",
+        "Prompt": "请选择",
+        "Minimum": -1.7976931348623157E+308,
+        "Maximum": 1.7976931348623157E+308,
+        "Options": [
+          {
+            "Key": "11",
+            "Value": "1"
+          },
+          {
+            "Key": "22",
+            "Value": "2"
+          }
+        ]
+      },
+      {
+        "Name": "Float",
+        "Type": 1,
+        "Minimum": -3.4028234663852886E+38,
+        "Maximum": 3.4028234663852886E+38,
+        "RegularExpression": "123"
+      },
+      {
+        "Name": "Decimal",
+        "Type": 1,
+        "Minimum": -1.7976931348623157E+308,
+        "Maximum": 1.7976931348623157E+308,
+        "Required": true
+      },
+      {
+        "Name": "Long",
+        "Type": 1,
+        "Minimum": -9.223372036854776E+18,
+        "Maximum": 9.223372036854776E+18
+      },
+      {
+        "Name": "ULong",
+        "Type": 1,
+        "Minimum": 0,
+        "Maximum": 1.8446744073709552E+19
+      },
+      {
+        "Name": "UInt",
+        "Type": 1,
+        "Minimum": 0,
+        "Maximum": 4294967295
+      },
+      {
+        "Name": "Short",
+        "Type": 1,
+        "Minimum": -32768,
+        "Maximum": 32767
+      },
+      {
+        "Name": "UShort",
+        "Type": 1,
+        "Minimum": 0,
+        "Maximum": 65535
+      },
+      {
+        "Name": "Byte",
+        "Type": 1,
+        "Minimum": 0,
+        "Maximum": 255
+      },
+      {
+        "Name": "SByte",
+        "Type": 1,
+        "Minimum": -128,
+        "Maximum": 127
+      },
+      {
+        "Name": "Char",
+        "Type": 0,
+        "Minimum": 1,
+        "Maximum": 1
+      },
+      {
+        "Name": "DateTime",
+        "Order": 0,
+        "Type": 3,
+        "DisplayName": "DateTime",
+        "GroupName": "sdfff",
+        "Description": "sdfw",
+        "Prompt": "请输入时间"
+      },
+      {
+        "Name": "DateOnly",
+        "Type": 4
+      },
+      {
+        "Name": "TimeOnly",
+        "Type": 5
+      },
+      {
+        "Name": "TimeSpan",
+        "Type": 0,
+        "RegularExpression": "^(-)?((\\d\u002B\\.(\\d\u002B))|(\\d\u002B)):(\\d\u002B):(\\d\u002B)(\\.(\\d\u002B))?$",
+        "RegularExpressionErrorMessage": "时间格式不正确(天.时:分:秒.毫秒)"
+      },
+      {
+        "Name": "Enum",
+        "Type": 1,
+        "Options": [
+          {
+            "Key": "Value1",
+            "Value": "0"
+          },
+          {
+            "Key": "Value2",
+            "Value": "1"
+          },
+          {
+            "Key": "Value3",
+            "Value": "2"
+          }
+        ]
+      },
+      {
+        "Name": "Demo2",
+        "Type": 6,
+        "SubTypeName": "Demo2"
+      },
+      {
+        "Name": "Demo2s",
+        "Type": 7,
+        "SubType": 6,
+        "Dim": 1,
+        "SubTypeName": "Demo2"
+      },
+      {
+        "Name": "Ints",
+        "Type": 7,
+        "SubType": 1,
+        "Dim": 1,
+        "SubTypeName": "Int32",
+        "Minimum": -2147483648,
+        "Maximum": 2147483647
+      },
+      {
+        "Name": "IntInts",
+        "Type": 7,
+        "SubType": 1,
+        "Dim": 2,
+        "SubTypeName": "Int32",
+        "Minimum": -2147483648,
+        "Maximum": 2147483647
+      },
+      {
+        "Name": "Doubledoubledoubles",
+        "Type": 7,
+        "SubType": 1,
+        "Dim": 3,
+        "SubTypeName": "Double",
+        "Minimum": -1.7976931348623157E+308,
+        "Maximum": 1.7976931348623157E+308
+      }
+    ]
+  },
+  {
+    "TypeName": "Demo2",
+    "MainType": false,
+    "PropertyModels": [
+      {
+        "Name": "String1",
+        "Type": 0
+      },
+      {
+        "Name": "String2",
+        "Type": 0
+      },
+      {
+        "Name": "Int",
+        "Type": 1,
+        "Minimum": -2147483648,
+        "Maximum": 2147483647
+      },
+      {
+        "Name": "Bool",
+        "Type": 2
+      },
+      {
+        "Name": "Demo2s",
+        "Type": 7,
+        "SubType": 6,
+        "Dim": 1,
+        "SubTypeName": "Demo2"
+      }
+    ]
+  }
+]

@@ -1,0 +1,32 @@
+{
+  "String": "123",
+  "Int": 3,
+  "Bool": false,
+  "Double": 1,
+  "Float": 14,
+  "Decimal": 0,
+  "Long": 0,
+  "ULong": 0,
+  "UInt": 0,
+  "Short": 0,
+  "UShort": 0,
+  "Byte": 0,
+  "SByte": 0,
+  "Char": "0",
+  "DateTime": "0001-01-01T00:00:00",
+  "DateOnly": "0001-01-01",
+  "TimeOnly": "00:00:00",
+  "TimeSpan": "00:00:00",
+  "Enum": 0,
+  "Demo2": {
+    "String1": "",
+    "String2": "",
+    "Int": 8,
+    "Bool": false,
+    "Demo2s": []
+  },
+  "Demo2s": [],
+  "Ints": [],
+  "IntInts": [],
+  "Doubledoubledoubles": []
+}

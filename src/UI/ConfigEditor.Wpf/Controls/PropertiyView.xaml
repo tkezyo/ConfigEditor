@@ -301,10 +301,10 @@
                                         </StackPanel>
                                     </DockPanel>
                                     <local:PropertiyView DataContext="{Binding}" Grid.Row="1"
-                                                         AddCommand="{Binding AddCommand,RelativeSource={RelativeSource AncestorType=UserControl, Mode=FindAncestor}}" 
-                                                         SetObjectCommand="{Binding SetObjectCommand,RelativeSource={RelativeSource AncestorType=UserControl, Mode=FindAncestor}}"
-                                                         CopyCommand="{Binding CopyCommand,RelativeSource={RelativeSource AncestorType=UserControl, Mode=FindAncestor}}" 
-                                                         PasteCommand="{Binding PasteCommand,RelativeSource={RelativeSource AncestorType=UserControl, Mode=FindAncestor}}" 
+                                                         AddCommand="{Binding DataContext.AddArrayCommand, RelativeSource={RelativeSource AncestorType=TabControl, Mode=FindAncestor}}" 
+                                                         SetObjectCommand="{Binding DataContext.SetObjectCommand, RelativeSource={RelativeSource AncestorType=TabControl, Mode=FindAncestor}}"
+                                                         CopyCommand="{Binding DataContext.CopyCommand, RelativeSource={RelativeSource AncestorType=TabControl, Mode=FindAncestor}}" 
+                                                         PasteCommand="{Binding DataContext.PasteCommand, RelativeSource={RelativeSource AncestorType=TabControl, Mode=FindAncestor}}" 
                                                          Padding="0,0,10,0">
                                         <local:PropertiyView.MinWidth>
                                             <MultiBinding Converter="{StaticResource WidthConverter}">

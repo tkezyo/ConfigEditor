@@ -1,7 +1,7 @@
 ﻿using DynamicData;
 using DynamicData.Binding;
 using ReactiveUI;
-using ReactiveUI.Fody.Helpers;
+using ReactiveUI.SourceGenerators;
 using ReactiveUI.Validation.Extensions;
 using ReactiveUI.Validation.Helpers;
 using System.Collections.ObjectModel;
@@ -814,7 +814,7 @@ public class ConfigEditViewModel : ViewModelBase
     }
 }
 
-public class ConfigInfoViewModel : ReactiveValidationObject
+public partial class ConfigInfoViewModel : ReactiveValidationObject
 {
     public ConfigInfoViewModel()
     {
@@ -831,7 +831,7 @@ public class ConfigInfoViewModel : ReactiveValidationObject
     [Reactive]
     public ObservableCollection<ConfigViewModel> Configs { get; set; } = [];
     [Reactive]
-    public required string FilePath { get; set; }
+    private string _filePath;
 }
 
 public class ConfigViewModel : ReactiveValidationObject
