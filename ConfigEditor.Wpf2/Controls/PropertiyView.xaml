@@ -268,7 +268,14 @@
                                             <Button ToolTip="Move Down" Content="Down" Style="{StaticResource ButtonActionStyle}" Command="{Binding DownCommand,ElementName=page}" CommandParameter="{Binding .}"/>
                                         </StackPanel>
                                     </DockPanel>
-                                    <local:PropertiyView DataContext="{Binding}" Grid.Row="1" Padding="0,0,10,0" />
+                                    <local:PropertiyView DataContext="{Binding}" Grid.Row="1" Padding="0,0,10,0"
+                                                          AddCommand="{Binding AddCommand, RelativeSource={RelativeSource AncestorType=local:PropertiyView}}"
+                                                          SetObjectCommand="{Binding SetObjectCommand, RelativeSource={RelativeSource AncestorType=local:PropertiyView}}"
+                                                          CopyCommand="{Binding CopyCommand, RelativeSource={RelativeSource AncestorType=local:PropertiyView}}"
+                                                          PasteCommand="{Binding PasteCommand, RelativeSource={RelativeSource AncestorType=local:PropertiyView}}"
+                                                          RemoveCommand="{Binding RemoveCommand, RelativeSource={RelativeSource AncestorType=local:PropertiyView}}"
+                                                          UpCommand="{Binding UpCommand, RelativeSource={RelativeSource AncestorType=local:PropertiyView}}"
+                                                          DownCommand="{Binding DownCommand, RelativeSource={RelativeSource AncestorType=local:PropertiyView}}" />
                                 </Grid>
                             </Border>
                         </DataTemplate>
@@ -294,7 +301,14 @@
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
                                     <Border CornerRadius="6" BorderBrush="#E0E0E0" BorderThickness="1" Margin="4" Padding="8" Background="#FFF">
-                                        <local:PropertiyView DataContext="{Binding}" Margin="2,0" />
+                                        <local:PropertiyView DataContext="{Binding}" Margin="2,0"
+                                                              AddCommand="{Binding AddCommand, RelativeSource={RelativeSource AncestorType=local:PropertiyView}}"
+                                                              SetObjectCommand="{Binding SetObjectCommand, RelativeSource={RelativeSource AncestorType=local:PropertiyView}}"
+                                                              CopyCommand="{Binding CopyCommand, RelativeSource={RelativeSource AncestorType=local:PropertiyView}}"
+                                                              PasteCommand="{Binding PasteCommand, RelativeSource={RelativeSource AncestorType=local:PropertiyView}}"
+                                                              RemoveCommand="{Binding RemoveCommand, RelativeSource={RelativeSource AncestorType=local:PropertiyView}}"
+                                                              UpCommand="{Binding UpCommand, RelativeSource={RelativeSource AncestorType=local:PropertiyView}}"
+                                                              DownCommand="{Binding DownCommand, RelativeSource={RelativeSource AncestorType=local:PropertiyView}}" />
                                     </Border>
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
